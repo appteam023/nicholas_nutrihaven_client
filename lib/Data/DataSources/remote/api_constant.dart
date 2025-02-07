@@ -1,0 +1,14 @@
+import 'package:get_storage/get_storage.dart';
+
+import '../../../Helpers/get_storare_helper.dart';
+
+class ApiConstants {
+  ApiConstants._();
+
+  static const baseUrl = "http://nutrihaven.testdevlink.net/";
+  static const mainUrl = "$baseUrl/api/";
+  static var publishKey = "";
+  static var secretKey = "";
+  static final storage = GetStorage();
+  static var userId = "";
+}
