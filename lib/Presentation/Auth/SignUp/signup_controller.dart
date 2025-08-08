@@ -39,10 +39,10 @@ class SignupController extends GetxController {
   void onInit() {
     super.onInit();
     signUpFormKey = GlobalKey<FormState>();
-    emailController = TextEditingController();
-    fullnameController = TextEditingController();
-    passController = TextEditingController();
-    confirmPass = TextEditingController();
+    emailController = TextEditingController(text: kDebugMode ? "john@gmail.com" : "");
+    fullnameController = TextEditingController(text: kDebugMode ? "Johnathan" : "");
+    passController = TextEditingController(text: kDebugMode ? "john123" : "");
+    confirmPass = TextEditingController(text: kDebugMode ? "john123" : "");
   }
 
   void dispose() {
@@ -56,49 +56,63 @@ class SignupController extends GetxController {
   final AuthRepository _authRepository = AuthRepository();
 
   void signup() {
-    final Map<String, dynamic> data = {
-      "email": emailController?.text.trim(),
-      "password": passController?.text.trim(),
-      "confirmPassword": confirmPass?.text.trim()
-    };
-    print('Signup API==> $data');
-    showLoader(true);
-    _authRepository.SignupApiRepo(data).then((value) async {
-      if (value['success'] == true) {
-        showLoader(false);
-        ApiConstants.userId = value["data"];
-        log(">>>" + ApiConstants.userId);
-        ScaffoldMessenger.of(Get.context!).showSnackBar(
-          CustomSnackBar(
-            message: "${value['message']}",
-          ),
-        );
-        Get.toNamed(AppRoutes.signupInfo);
-        if (kDebugMode) {
-          print(value.toString());
-        }
-      } else {
-        showLoader(false);
-        update();
-        ScaffoldMessenger.of(Get.context!).showSnackBar(
-          CustomSnackBar(
-            message: "${value.message}",
-            backgroundColor: yellow,
-          ),
-        );
-      }
-    }).onError((error, stackTrace) {
-      showLoader(false);
-      update();
+    if(emailController!.text.isEmpty || passController!.text.isEmpty || confirmPass!.text.isEmpty) {
+      return;
+    }
+    if(passController!.text != confirmPass!.text) {
       ScaffoldMessenger.of(Get.context!).showSnackBar(
         CustomSnackBar(
-          message: "$error",
+          message: "Password doesn't match",
           backgroundColor: Colors.red,
         ),
       );
-      if (kDebugMode) {
-        print(error.toString());
-      }
-    });
+      return;
+    }
+    Get.toNamed(AppRoutes.signupInfo);
+    return;
+    // final Map<String, dynamic> data = {
+    //   "email": emailController?.text.trim(),
+    //   "password": passController?.text.trim(),
+    //   "confirmPassword": confirmPass?.text.trim()
+    // };
+    // print('Signup API==> $data');
+    // showLoader(true);
+    // _authRepository.SignupApiRepo(data).then((value) async {
+    //   if (value['success'] == true) {
+    //     showLoader(false);
+    //     ApiConstants.userId = value["data"];
+    //     log(">>>" + ApiConstants.userId);
+    //     ScaffoldMessenger.of(Get.context!).showSnackBar(
+    //       CustomSnackBar(
+    //         message: "${value['message']}",
+    //       ),
+    //     );
+    //     Get.toNamed(AppRoutes.signupInfo);
+    //     if (kDebugMode) {
+    //       print(value.toString());
+    //     }
+    //   } else {
+    //     showLoader(false);
+    //     update();
+    //     ScaffoldMessenger.of(Get.context!).showSnackBar(
+    //       CustomSnackBar(
+    //         message: "${value.message}",
+    //         backgroundColor: yellow,
+    //       ),
+    //     );
+    //   }
+    // }).onError((error, stackTrace) {
+    //   showLoader(false);
+    //   update();
+    //   ScaffoldMessenger.of(Get.context!).showSnackBar(
+    //     CustomSnackBar(
+    //       message: "$error",
+    //       backgroundColor: Colors.red,
+    //     ),
+    //   );
+    //   if (kDebugMode) {
+    //     print(error.toString());
+    //   }
+    // });
   }
 }

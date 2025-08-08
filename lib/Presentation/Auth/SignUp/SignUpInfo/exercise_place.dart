@@ -3,10 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:nicholas_nutrihaven/Config/AppRoutes/routes_imports.dart';
 import 'package:nicholas_nutrihaven/Presentation/Auth/SignUp/SignUpInfo/excercise_place_controller.dart';
-import 'package:nicholas_nutrihaven/Presentation/Auth/SignUp/widgets/circluar_button.dart';
-import 'package:nicholas_nutrihaven/Presentation/Auth/SignUp/widgets/grad_button.dart';
 import 'package:nicholas_nutrihaven/Utils/Extensions/text_extension.dart';
 import 'package:nicholas_nutrihaven/controllers/addPreferences.dart';
 
@@ -134,10 +131,6 @@ import '../../../../Utils/Const/color_const.dart';
 //   },
 //   {"title": 'Custom', "desc": 'Workout anywhere without gym equipment'},
 // ];
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
-import '../../../../Utils/Const/color_const.dart';
 
 class ExercisePlace extends StatefulWidget {
   const ExercisePlace({super.key});
@@ -147,11 +140,18 @@ class ExercisePlace extends StatefulWidget {
 }
 
 class _ExercisePlaceState extends State<ExercisePlace> {
+  late final AddpreferencesController addPreferencesController;
   final ExercisePlaceController controller = Get.put(ExercisePlaceController());
-  int currentIndex = -1;
+  int? currentIndex;
 
-  final AddpreferencesController addpreferencesController =
-      Get.put(AddpreferencesController());
+  @override
+  void initState() {
+    super.initState();
+    addPreferencesController =  Get.find<AddpreferencesController>();
+    if(addPreferencesController.exercisePlace.isNotEmpty) {
+      currentIndex = controller.exercisePlaces.indexWhere((e) => e.name == addPreferencesController.exercisePlace) ?? -1;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -186,9 +186,8 @@ class _ExercisePlaceState extends State<ExercisePlace> {
                     onTap: () {
                       select(index);
                       log(index.toString());
-                      log(exercise.name);
-                      addpreferencesController.exercisePlace = exercise.name;
-                      log(addpreferencesController.exercisePlace);
+                      addPreferencesController.exercisePlace = exercise.name.toString();
+                      log(addPreferencesController.exercisePlace);
                     },
                     child: Stack(
                       children: [
@@ -207,7 +206,7 @@ class _ExercisePlaceState extends State<ExercisePlace> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                exercise.name,
+                                exercise.name.toString(),
                                 style: context.bodyLarge!.copyWith(
                                   fontWeight: FontWeight.bold,
                                   color: currentIndex == index
@@ -216,7 +215,7 @@ class _ExercisePlaceState extends State<ExercisePlace> {
                                 ),
                               ),
                               Text(
-                                exercise.description,
+                                exercise.description.toString(),
                                 style: currentIndex == index
                                     ? context.bodySmall!
                                         .copyWith(color: secondary)

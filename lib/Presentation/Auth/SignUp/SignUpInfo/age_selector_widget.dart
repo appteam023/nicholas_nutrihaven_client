@@ -1,17 +1,12 @@
 import 'dart:developer';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:nicholas_nutrihaven/Config/AppRoutes/routes_imports.dart';
 import 'package:nicholas_nutrihaven/Utils/Extensions/text_extension.dart';
 import 'package:nicholas_nutrihaven/controllers/addPreferences.dart';
 
-import '../../../../Utils/Const/asset_const.dart';
 import '../../../../Utils/Const/color_const.dart';
-import '../widgets/circluar_button.dart';
-import '../widgets/grad_button.dart';
 
 class AgeSelectorWidget extends StatefulWidget {
   const AgeSelectorWidget({
@@ -22,15 +17,20 @@ class AgeSelectorWidget extends StatefulWidget {
   State<AgeSelectorWidget> createState() => _AgeSelectorWidgetState();
 }
 
-final AddpreferencesController addpreferencesController =
-    Get.put(AddpreferencesController());
+
 
 class _AgeSelectorWidgetState extends State<AgeSelectorWidget> {
+  late final AddpreferencesController addPreferencesController;
   final FixedExtentScrollController _controller =
       FixedExtentScrollController(initialItem: 10);
 
-  int selectedNumber = 28;
+  int? selectedNumber = 28;
 
+  @override
+  void initState() {
+    super.initState();
+    addPreferencesController =  Get.find<AddpreferencesController>();
+  }
   // Default selected number
   @override
   Widget build(BuildContext context) {
@@ -108,6 +108,7 @@ class _AgeSelectorWidgetState extends State<AgeSelectorWidget> {
     //     ],
     //   ),
     // );
+    selectedNumber = addPreferencesController.age ?? 28;
     return Scaffold(
       body: Column(
         children: [
@@ -131,10 +132,8 @@ class _AgeSelectorWidgetState extends State<AgeSelectorWidget> {
                 onSelectedItemChanged: (index) {
                   setState(() {
                     selectedNumber = 18 + index;
-                    addpreferencesController.age = selectedNumber;
-                    log(addpreferencesController.age.toString());
-
-                    print(selectedNumber);
+                    addPreferencesController.age = selectedNumber;
+                    log(addPreferencesController.age.toString());
                   });
                 },
                 physics: FixedExtentScrollPhysics(),

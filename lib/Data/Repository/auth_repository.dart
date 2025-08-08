@@ -1,4 +1,5 @@
-import 'package:dio/dio.dart';
+import 'dart:developer';
+
 import 'package:flutter/foundation.dart';
 
 import '../DataSources/remote/api_endpoints.dart';
@@ -10,22 +11,23 @@ import '../Model/SignInModel/Signin_model.dart';
 class AuthRepository {
   final NetworkApiService _networkApiService = NetworkApiService();
 
-  Future SignupApiRepo(Map<String, dynamic> data) async {
+  Future<SignInModel> SignupApiRepo(Map<String, dynamic> data) async {
     try {
       dynamic response = await _networkApiService.PostResponse(
           url: ApiEndPointUrls.signUp, data: data, isTokenRequired: false);
-      return response;
+      log(response.toString());
+      return SignInModel.fromJson(response);
     } catch (e) {
       rethrow;
     }
   }
 
-  Future<SigninModel> SigninApiRepo(Map<String, dynamic> data) async {
+  Future<SignInModel> SigninApiRepo(Map<String, dynamic> data) async {
     try {
       dynamic response = await _networkApiService.PostResponse(
           url: ApiEndPointUrls.signIn, data: data, isTokenRequired: false);
-      print(response);
-      return SigninModel.fromJson(response);
+      log(response.toString());
+      return SignInModel.fromJson(response);
     } catch (e) {
       rethrow;
     }

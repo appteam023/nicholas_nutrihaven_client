@@ -34,6 +34,8 @@ class AppRoutes {
   static String addRepSet = '/addRepSet';
   static String instructionVideo = '/instructionVideo';
   static String notification = '/notification';
+  static String addNewExercise = '/addNewExercise';
+  static String addTag = '/addTag';
 
   static List<GetPage<dynamic>> routes = [
     GetPage(
@@ -168,6 +170,18 @@ class AppRoutes {
     GetPage(
       name: excersiceEquipment,
       page: () => ExerciseEquipments(),
+    ),
+    GetPage(
+      name: addNewExercise,
+      page: () => AddNewExerciseScreen(),
+      transition: Transition.cupertino,
+      transitionDuration: const Duration(milliseconds: 500),
+    ),
+    GetPage(
+      name: addTag,
+      page: () => TagVideoScreen(),
+      transition: Transition.cupertino,
+      transitionDuration: const Duration(milliseconds: 500),
     ),
   ];
 }

@@ -3,25 +3,36 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:nicholas_nutrihaven/Utils/Extensions/text_extension.dart';
 import 'package:nicholas_nutrihaven/controllers/addPreferences.dart';
 
-import '../../../../Config/AppRoutes/routes_imports.dart';
 import '../../../../Utils/Const/color_const.dart';
-import '../widgets/circluar_button.dart';
-import '../widgets/grad_button.dart';
 
 class GenderInfo extends StatefulWidget {
+  const GenderInfo({super.key});
+
   @override
-  _GenderInfoState createState() => _GenderInfoState();
+  GenderInfoState createState() => GenderInfoState();
 }
 
-final AddpreferencesController addpreferencesController =
-    Get.put(AddpreferencesController());
 
-class _GenderInfoState extends State<GenderInfo> {
-  String? selectedGender; // Tracks the selected gender
+class GenderInfoState extends State<GenderInfo> {
+  late final AddpreferencesController addPreferencesController;
+  String? selectedGender;
+
+  @override
+  void initState() {
+    super.initState();
+    addPreferencesController =  Get.find<AddpreferencesController>();
+    selectedGender ??= addPreferencesController.gender;
+  }
+
+  @override
+  void dispose() {
+    selectedGender = null;
+    // addPreferencesController.gender = null;
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,8 +61,8 @@ class _GenderInfoState extends State<GenderInfo> {
               onTap: () {
                 setState(() {
                   selectedGender = 'Male';
-                  addpreferencesController.gender = selectedGender!;
-                  log(addpreferencesController.gender);
+                  addPreferencesController.gender = selectedGender;
+                  log(addPreferencesController.gender.toString());
                 });
               },
             ),
@@ -64,8 +75,8 @@ class _GenderInfoState extends State<GenderInfo> {
               onTap: () {
                 setState(() {
                   selectedGender = 'Female';
-                  addpreferencesController.gender = selectedGender!;
-                  log(addpreferencesController.gender);
+                  addPreferencesController.gender = selectedGender;
+                  log(addPreferencesController.gender.toString());
                 });
               },
             ),
@@ -101,6 +112,7 @@ class GenderButton extends StatelessWidget {
   final VoidCallback onTap;
 
   const GenderButton({
+    super.key,
     required this.icon,
     required this.label,
     required this.color,

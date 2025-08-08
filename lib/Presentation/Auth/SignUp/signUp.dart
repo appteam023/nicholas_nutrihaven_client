@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:nicholas_nutrihaven/Data/DataSources/remote/api_constant.dart';
-import 'package:nicholas_nutrihaven/Presentation/Auth/SignUp/SignUpInfo/exercise_equipments.dart';
 import 'package:nicholas_nutrihaven/Presentation/Auth/SignUp/SignUpInfo/exercise_place.dart';
 import 'package:nicholas_nutrihaven/Presentation/Auth/SignUp/SignUpInfo/gender_info.dart';
 import 'package:nicholas_nutrihaven/Presentation/Auth/SignUp/SignUpInfo/goals.dart';
@@ -16,25 +15,24 @@ import 'package:nicholas_nutrihaven/Utils/Const/color_const.dart';
 import 'package:nicholas_nutrihaven/Utils/Extensions/text_extension.dart';
 import 'package:nicholas_nutrihaven/controllers/addPreferences.dart';
 
-import '../../../Config/AppRoutes/routes_imports.dart';
 
 class SignupInformationPageView extends StatefulWidget {
-  const SignupInformationPageView({Key? key}) : super(key: key);
+  const SignupInformationPageView({super.key});
 
   @override
-  _OnboardingScreenState createState() => _OnboardingScreenState();
+  OnboardingScreenState createState() => OnboardingScreenState();
 }
 
-final AddpreferencesController addpreferencesController =
-    Get.put(AddpreferencesController());
 
-class _OnboardingScreenState extends State<SignupInformationPageView> {
+class OnboardingScreenState extends State<SignupInformationPageView> {
+  late final AddpreferencesController addPreferencesController;
   late PageController pageController;
   int _currentPage = 0;
 
   @override
   void initState() {
     super.initState();
+    addPreferencesController = Get.put(AddpreferencesController());
     pageController = PageController();
   }
 
@@ -74,7 +72,7 @@ class _OnboardingScreenState extends State<SignupInformationPageView> {
               GoalScreen(),
               PhysicalActivity(),
               const ExercisePlace(),
-              ExerciseEquipments(),
+              // ExerciseEquipments(),
             ],
           ),
           Positioned(
@@ -87,6 +85,10 @@ class _OnboardingScreenState extends State<SignupInformationPageView> {
             bottom: 40.h,
             child: GestureDetector(
               onTap: () {
+                if(_currentPage == 0) {
+                  Get.back();
+                  return;
+                }
                 _currentPage--;
                 pageController.animateToPage(_currentPage--,
                     duration: const Duration(milliseconds: 800),
@@ -137,7 +139,7 @@ class _OnboardingScreenState extends State<SignupInformationPageView> {
           decoration: BoxDecoration(
             color: _currentPage == index
                 ? yellowText
-                : yellowText.withOpacity(0.5),
+                : yellowText.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(20.r),
           ),
         ),
@@ -150,13 +152,49 @@ class _OnboardingScreenState extends State<SignupInformationPageView> {
       color: Colors.transparent, // Prevents unnecessary background color
       child: InkWell(
         onTap: () {
-          if (_currentPage == 7) {
+          if (_currentPage == 6 && (addPreferencesController.exercisePlace.isNotEmpty)) {
             var id = ApiConstants.userId;
-            log("idd" + id);
-            addpreferencesController.addpreference(id);
+            log("idd $id");
+            addPreferencesController.addPreference(id);
             // Get.offAllNamed(AppRoutes.bottomBar);
           } else {
-            _nextPage(_currentPage + 1);
+            // if(addPreferencesController.gender == null || addPreferencesController.age == null ||
+            //     addPreferencesController.weight == null ||addPreferencesController.heightFeet == null || addPreferencesController.heightInches == null ||
+            //     addPreferencesController.goal == null || addPreferencesController.goal!.isEmpty ||
+            //     addPreferencesController.level == null || addPreferencesController.level!.isEmpty ||
+            //     addPreferencesController.exercisePlace.isEmpty
+            // ) {
+            //   return;
+            // }
+            if(addPreferencesController.gender != null && _currentPage == 0) {
+              _nextPage(_currentPage + 1);
+              return;
+            }
+            else if(addPreferencesController.age != null && _currentPage == 1) {
+              _nextPage(_currentPage + 1);
+              return;
+            }
+            else if(addPreferencesController.weight != null && _currentPage == 2) {
+              _nextPage(_currentPage + 1);
+              return;
+            }
+            else if(addPreferencesController.heightFeet != null && _currentPage == 3) {
+              _nextPage(_currentPage + 1);
+              return;
+            }
+            else if((addPreferencesController.goal != null && addPreferencesController.goal!.isNotEmpty) && _currentPage == 4) {
+              _nextPage(_currentPage + 1);
+              return;
+            }
+            else if((addPreferencesController.level != null && addPreferencesController.level!.isNotEmpty) && _currentPage == 5) {
+              _nextPage(_currentPage + 1);
+              return;
+            }
+            // else if((addPreferencesController.exercisePlace.isNotEmpty) && _currentPage == 6) {
+            //   _nextPage(_currentPage + 1);
+            //   return;
+            // }
+            // _nextPage(_currentPage + 1);
           }
         },
         child: Container(
@@ -170,7 +208,7 @@ class _OnboardingScreenState extends State<SignupInformationPageView> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                _currentPage != 7 ? 'Next' : 'Finished',
+                _currentPage != 6 ? 'Next' : 'Finished',
                 style: context.headlineSmall!.copyWith(fontSize: 20.sp),
               ),
               10.horizontalSpace,

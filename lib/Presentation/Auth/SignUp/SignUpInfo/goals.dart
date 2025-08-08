@@ -1,28 +1,23 @@
 import 'dart:developer';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:nicholas_nutrihaven/Utils/Extensions/text_extension.dart';
 import 'package:nicholas_nutrihaven/controllers/addPreferences.dart';
-import '../../../../Config/AppRoutes/routes_imports.dart';
 import '../../../../Utils/Const/asset_const.dart';
 import '../../../../Utils/Const/color_const.dart';
-import '../widgets/circluar_button.dart';
-import '../widgets/grad_button.dart';
 
 class GoalScreen extends StatelessWidget {
   final ValueNotifier<int> selectedIndex = ValueNotifier<int>(0);
 
   GoalScreen({super.key});
 
-  final AddpreferencesController addpreferencesController =
-      Get.put(AddpreferencesController());
+  final AddpreferencesController addPreferencesController = Get.find<AddpreferencesController>();
 
   @override
   Widget build(BuildContext context) {
+    selectedIndex.value = addPreferencesController.goal?.keys.first ?? 0;
     return Scaffold(
       body: Column(
         children: [
@@ -81,20 +76,23 @@ class GoalScreen extends StatelessWidget {
   Widget _buildTappableContainer(
     int index,
     String text,
-    String ImageConst, // Use imagePath instead of icon
+    String imageConst, // Use imagePath instead of icon
     int selectedIndex,
   ) {
     return GestureDetector(
       onTap: () {
         this.selectedIndex.value = index;
         if (this.selectedIndex.value == 0) {
-          addpreferencesController.goal = 'Lose Weight';
+          addPreferencesController.goal = {addPreferencesController.goalData.entries.elementAt(0).key :
+            addPreferencesController.goalData.entries.elementAt(0).value};
         } else if (this.selectedIndex.value == 1) {
-          addpreferencesController.goal = 'Gain Weight';
+          addPreferencesController.goal = {addPreferencesController.goalData.entries.elementAt(1).key :
+            addPreferencesController.goalData.entries.elementAt(1).value};
         } else if (this.selectedIndex.value == 2) {
-          addpreferencesController.goal = "Stay Healthy";
+          addPreferencesController.goal = {addPreferencesController.goalData.entries.elementAt(2).key :
+            addPreferencesController.goalData.entries.elementAt(2).value};
         }
-        log(addpreferencesController.goal);
+        log(addPreferencesController.goal.toString());
       },
       child: Container(
         height: 90.h,
@@ -119,7 +117,7 @@ class GoalScreen extends StatelessWidget {
                       : FontWeight.w500),
             ),
             Image.asset(
-              ImageConst, // Use the provided image path
+              imageConst, // Use the provided image path
               height: 60.h, // Adjust image size as needed
               width: 60.w,
               fit: BoxFit.contain,

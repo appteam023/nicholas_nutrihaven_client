@@ -3,27 +3,25 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:nicholas_nutrihaven/Utils/Extensions/text_extension.dart';
 import 'package:nicholas_nutrihaven/controllers/addPreferences.dart';
 
-import '../../../../Config/AppRoutes/routes_imports.dart';
 import '../../../../Utils/Const/color_const.dart';
-import '../widgets/circluar_button.dart';
-import '../widgets/grad_button.dart';
 
 class HeightPickerScreen extends StatelessWidget {
+
   final ValueNotifier<int> selectedFeet = ValueNotifier<int>(5); // Default feet
   final ValueNotifier<int> selectedInches =
       ValueNotifier<int>(2); // Default inches
 
   HeightPickerScreen({super.key});
 
-  final AddpreferencesController addpreferencesController =
-      Get.put(AddpreferencesController());
+  final AddpreferencesController addPreferencesController = Get.find<AddpreferencesController>();
 
   @override
   Widget build(BuildContext context) {
+    selectedFeet.value = (addPreferencesController.heightFeet ?? 4) - 1;
+    selectedInches.value = (addPreferencesController.heightInches ?? 1) - 1;
     return Scaffold(
       body: Center(
         child: Column(
@@ -40,11 +38,31 @@ class HeightPickerScreen extends StatelessWidget {
             150.verticalSpace,
 
             /// Inches Picker
-            _buildPicker(
-              itemCount: 1000,
-              selectedValue: selectedInches,
-              label: 'cm',
-              highlightColor: themeColor,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildPicker(
+                  itemCount: 10,
+                  selectedValue: selectedFeet,
+                  label: 'ft',
+                  highlightColor: themeColor,
+                  onSelectedItemChanged: (value) {
+                    addPreferencesController.heightFeet = value + 1;
+                    log(addPreferencesController.heightFeet.toString());
+                  }
+                ),
+                SizedBox(width: 20,),
+                _buildPicker(
+                  itemCount: 12,
+                  selectedValue: selectedInches,
+                  label: 'in',
+                  highlightColor: themeColor,
+                  onSelectedItemChanged: (value) {
+                    addPreferencesController.heightInches = value + 1;
+                    log(addPreferencesController.heightInches.toString());
+                  }
+                ),
+              ],
             ),
 
             // Spacer(),
@@ -76,6 +94,7 @@ class HeightPickerScreen extends StatelessWidget {
     required ValueNotifier<int> selectedValue,
     required String label,
     required Color highlightColor,
+    required void Function(int) onSelectedItemChanged,
   }) {
     return Column(
       children: [
@@ -107,8 +126,7 @@ class HeightPickerScreen extends StatelessWidget {
                     controller: FixedExtentScrollController(initialItem: value),
                     onSelectedItemChanged: (index) {
                       selectedValue.value = index;
-                      addpreferencesController.height = selectedValue.value;
-                      log(addpreferencesController.height.toString());
+                      onSelectedItemChanged(index);
                     },
                     childDelegate: ListWheelChildBuilderDelegate(
                       builder: (context, index) {

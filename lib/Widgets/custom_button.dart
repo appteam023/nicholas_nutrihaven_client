@@ -30,13 +30,15 @@ class CustomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final isEnabled = onTap != null && !loading;
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
       width: width ?? double.infinity,
       height: height,
       padding: EdgeInsets.zero,
       decoration: BoxDecoration(
-        gradient: gradientYellow,
-        borderRadius: radius * 2, // Set the border radius
+        gradient: isEnabled && isGradient ? gradientYellow : gradientGrey,
+        borderRadius: radius * 2,
       ),
       child: loading
           ? MaterialButton(

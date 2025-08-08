@@ -3,34 +3,24 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:nicholas_nutrihaven/Utils/Extensions/text_extension.dart';
 import 'package:nicholas_nutrihaven/controllers/addPreferences.dart';
 
-import '../../../../Config/AppRoutes/routes_imports.dart';
 import '../../../../Utils/Const/color_const.dart';
-import '../widgets/circluar_button.dart';
-import '../widgets/grad_button.dart';
 
 class PhysicalActivity extends StatelessWidget {
   final ValueNotifier<int> selectedIndex =
       ValueNotifier<int>(2); // Default to 'Intermediate'
 
-  final List<String> levels = [
-    'Rookie',
-    'Beginner',
-    'Intermediate',
-    'Advance',
-    'True Beast',
-  ];
+
 
   PhysicalActivity({super.key});
 
-  final AddpreferencesController addpreferencesController =
-      Get.put(AddpreferencesController());
+  final AddpreferencesController addPreferencesController = Get.find<AddpreferencesController>();
 
   @override
   Widget build(BuildContext context) {
+    selectedIndex.value = addPreferencesController.level?.keys.first ?? 2;
     return Scaffold(
       body: Column(
         children: [
@@ -84,24 +74,29 @@ class PhysicalActivity extends StatelessWidget {
                         selectedIndex.value = index;
 
                         if (selectedIndex.value == 0) {
-                          addpreferencesController.level = "Rookie";
+                          addPreferencesController.level = {addPreferencesController.activityLevels.entries.elementAt(0).key :
+                            addPreferencesController.activityLevels.entries.elementAt(0).value};
                         } else if (selectedIndex.value == 1) {
-                          addpreferencesController.level = "Beginner";
+                          addPreferencesController.level = {addPreferencesController.activityLevels.entries.elementAt(1).key :
+                            addPreferencesController.activityLevels.entries.elementAt(1).value};
                         } else if (selectedIndex.value == 2) {
-                          addpreferencesController.level = "Intermediate";
+                          addPreferencesController.level = {addPreferencesController.activityLevels.entries.elementAt(2).key :
+                            addPreferencesController.activityLevels.entries.elementAt(2).value};
                         } else if (selectedIndex.value == 3) {
-                          addpreferencesController.level = "Advanced";
+                          addPreferencesController.level = {addPreferencesController.activityLevels.entries.elementAt(3).key :
+                            addPreferencesController.activityLevels.entries.elementAt(3).value};
                         } else if (selectedIndex.value == 4) {
-                          addpreferencesController.level = "True Beast";
+                          addPreferencesController.level = {addPreferencesController.activityLevels.entries.elementAt(4).key :
+                            addPreferencesController.activityLevels.entries.elementAt(4).value};
                         }
 
-                        log(addpreferencesController.level.toString());
+                        log(addPreferencesController.level.toString());
                       },
                       childDelegate: ListWheelChildBuilderDelegate(
                         builder: (context, index) {
                           return Center(
                             child: Text(
-                              levels[index],
+                              addPreferencesController.activityLevels.entries.elementAt(index).value,
                               style: TextStyle(
                                   fontSize: index == value ? 24.sp : 24.sp,
                                   color: index == value
@@ -112,7 +107,7 @@ class PhysicalActivity extends StatelessWidget {
                             ),
                           );
                         },
-                        childCount: levels.length,
+                        childCount: addPreferencesController.activityLevels.length,
                       ),
                     );
                   },

@@ -38,6 +38,9 @@ class SignInController extends GetxController {
   }
 
   void login() async {
+    if (emailController!.text.isEmpty || passController!.text.isEmpty) {
+      return;
+    }
     if (logInFormKey!.currentState!.validate()) {
       FocusNode().unfocus();
       // var fcmToken = await NotificationServices().getDeviceToken();
@@ -47,18 +50,19 @@ class SignInController extends GetxController {
         "password": passController?.text.trim()
       };
 
-      print('logindata ====== ${data}');
+      print('logindata ====== $data');
       showLoader(true);
 
       _authRepository.SigninApiRepo(data).then((value) async {
         debugPrint("Calling Success ==> $value");
         debugPrint("Calling Success ==> ${value..runtimeType}");
-        if (value!.success == true) {
+        if (value.user != null) {
           log("response ==> $value");
           debugPrint("object => $value");
-
-          ApiConstants.userId = value.data!.user!.sId!;
-          log("Api constants >>> " + ApiConstants.userId);
+          await saveUser(user: value.user!);
+          await saveToken(token: value.token!);
+          ApiConstants.userId = value.user!.memberId.toString();
+          log("Api constants >>> ${ApiConstants.userId}");
 
           // ApiConstants.userData = null;
           // await saveUser(user: value);
@@ -74,7 +78,7 @@ class SignInController extends GetxController {
               message: "Success 👏, Sign in successfully",
             ),
           );
-          Get.offAllNamed(AppRoutes.drawer);
+          Get.offAllNamed(AppRoutes.bottomBar);
           if (kDebugMode) {
             print(value.toString());
           }
@@ -103,8 +107,10 @@ class SignInController extends GetxController {
   void onInit() {
     super.onInit();
     logInFormKey = GlobalKey<FormState>();
-    emailController = TextEditingController();
-    passController = TextEditingController();
+    emailController =
+        TextEditingController(text: kDebugMode ? "demo@demo.com" : "");
+    passController =
+        TextEditingController(text: kDebugMode ? "demo@demo.com" : "");
     // login();
   }
 

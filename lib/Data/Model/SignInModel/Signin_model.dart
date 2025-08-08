@@ -1,127 +1,104 @@
-class SigninModel {
-  bool? success;
+class SignInModel {
   String? message;
-  Data? data;
-
-  SigninModel({this.success, this.message, this.data});
-
-  SigninModel.fromJson(var json) {
-    success = json['success'];
-    message = json['message'];
-    data = json['data'] != null ? Data.fromJson(json['data']) : null;
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['success'] = success;
-    data['message'] = message;
-    if (this.data != null) {
-      data['data'] = this.data!.toJson();
-    }
-    return data;
-  }
-}
-
-class Data {
-  User? user;
   String? token;
+  User? user;
 
-  Data({this.user, this.token});
+  SignInModel({this.message, this.token, this.user});
 
-  Data.fromJson(Map<String, dynamic> json) {
-    user = json['user'] != null ? User.fromJson(json['user']) : null;
+  SignInModel.fromJson(Map<String, dynamic> json) {
+    message = json['message'];
     token = json['token'];
+    user = json['user'] != null ? User.fromJson(json['user']) : null;
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
+    data['message'] = message;
+    data['token'] = token;
     if (user != null) {
       data['user'] = user!.toJson();
     }
-    data['token'] = token;
     return data;
   }
 }
 
 class User {
-  String? sId;
-  String? fullname;
-  String? email;
-  String? profile;
-  double? longitude;
-  double? latitude;
-  List<dynamic>? addToFavorite;
-  bool? isDeleted;
-  String? fcmToken;
-  bool? verified;
+  int? memberId;
+  String? memberFullName;
+  String? memberEmail;
+  String? memberProfile;
+  String? memberGender;
+  int? memberAge;
+  num? memberWeight;
+  String? memberWeightUnit;
+  num? memberHeightFt;
+  num? memberHeightIn;
+  String? memberGoal;
+  String? memberExp;
+  String? memberExercisePlace;
+  String? memberToken;
+  String? memberStatus;
   String? createdAt;
   String? updatedAt;
-  Agency? agency;
-  int? iV;
 
   User(
-      {this.sId,
-      this.fullname,
-      this.email,
-      this.profile,
-      this.longitude,
-      this.latitude,
-      this.addToFavorite,
-      this.isDeleted,
-      this.fcmToken,
-      this.verified,
-      this.createdAt,
-      this.updatedAt,
-      this.iV,
-      this.agency});
+      {this.memberId,
+        this.memberFullName,
+        this.memberEmail,
+        this.memberProfile,
+        this.memberGender,
+        this.memberAge,
+        this.memberWeight,
+        this.memberWeightUnit,
+        this.memberHeightFt,
+        this.memberHeightIn,
+        this.memberGoal,
+        this.memberExp,
+        this.memberExercisePlace,
+        this.memberToken,
+        this.memberStatus,
+        this.createdAt,
+        this.updatedAt});
 
   User.fromJson(Map<String, dynamic> json) {
-    sId = json['_id'];
-    fullname = json['fullname'];
-    email = json['email'];
-    profile = json['profile'];
-    longitude =
-        (json['longitude'] != null) ? json['longitude'].toDouble() : null;
-    latitude = (json['latitude'] != null) ? json['latitude'].toDouble() : null;
-    addToFavorite = json['addToFavorite'] != null
-        ? List<dynamic>.from(json['addToFavorite'])
-        : null;
-    isDeleted = json['isDeleted'];
-    fcmToken = json['fcmToken'];
-    verified = json['verified'];
-    agency = json['agency'] != null ? Agency.fromJson(json['agency']) : null;
-    createdAt = json['createdAt'];
-    updatedAt = json['updatedAt'];
-    iV = json['__v'];
+    memberId = json['member_id'];
+    memberFullName = json['member_full_name'];
+    memberEmail = json['member_email'];
+    memberProfile = json['member_profile'];
+    memberGender = json['member_gender'];
+    memberAge = json['member_age'];
+    memberWeight = json['member_weight'];
+    memberWeightUnit = json['member_weight_unit'];
+    memberHeightFt = json['member_height_ft'];
+    memberHeightIn = json['member_height_in'];
+    memberGoal = json['member_goal'];
+    memberExp = json['member_exp'];
+    memberExercisePlace = json['member_excerise_place'];
+    memberToken = json['member_token'];
+    memberStatus = json['member_status'];
+    createdAt = json['created_at'];
+    updatedAt = json['updated_at'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['_id'] = sId;
-    data['fullname'] = fullname;
-    data['email'] = email;
-    data['profile'] = profile;
-    data['longitude'] = longitude;
-    data['latitude'] = latitude;
-    if (addToFavorite != null) {
-      data['addToFavorite'] = addToFavorite;
-    }
-    data['isDeleted'] = isDeleted;
-    data['fcmToken'] = fcmToken;
-    data['verified'] = verified;
-    data['createdAt'] = createdAt;
-    data['updatedAt'] = updatedAt;
-    data['__v'] = iV;
+    data['member_id'] = memberId;
+    data['member_full_name'] = memberFullName;
+    data['member_email'] = memberEmail;
+    data['member_profile'] = memberProfile;
+    data['member_gender'] = memberGender;
+    data['member_age'] = memberAge;
+    data['member_weight'] = memberWeight;
+    data['member_weight_unit'] = memberWeightUnit;
+    data['member_height_ft'] = memberHeightFt;
+    data['member_height_in'] = memberHeightIn;
+    data['member_goal'] = memberGoal;
+    data['member_exp'] = memberExp;
+    data['member_excerise_place'] = memberExercisePlace;
+    data['member_token'] = memberToken;
+    data['member_status'] = memberStatus;
+    data['created_at'] = createdAt;
+    data['updated_at'] = updatedAt;
     return data;
-  }
-}
-
-class Agency {
-  String? agencyName;
-  String? realtorId;
-
-  Agency.fromJson(Map<String, dynamic> json) {
-    agencyName = json['agencyName'];
-    realtorId = json['realtorId'];
   }
 }

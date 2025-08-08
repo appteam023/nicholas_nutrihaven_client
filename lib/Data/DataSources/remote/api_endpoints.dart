@@ -2,8 +2,12 @@ class ApiEndPointUrls {
   ApiEndPointUrls._();
 
   /// AUTH
-  static const signUp = "auth/register";
-  static const signIn = "auth/login";
+  static const signUp = "register";
+  static const signIn = "login";
+  static const categories = "category";
+  static const videos = "videos";
+  static const postTag = "post-tag";
+  static const userWorkout = "user-workout";
   static const forgetPass = "user/forgetpassword";
   static const verifyCode = "user/verifycode";
   static const resetPass = "user/confirmpassword/";
@@ -17,4 +21,12 @@ class ApiEndPointUrls {
   static const notifications = "notification/getallnotifications";
 
   static const addPreference = "user/addpreferences";
+
+  //Muscle
+  static const muscle = "muscle";
+
+  //Exercise
+  static const getExercise = "nutriheaven-exercise";
+  static const postExercise = "post-exercise";
+  static const postExerciseMuscle = "post-exercise-muscle";
 }

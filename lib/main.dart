@@ -193,10 +193,10 @@ class MyApp extends StatelessWidget {
                   ),
                 ),
                 checkboxTheme: CheckboxThemeData(
-                  fillColor: MaterialStateProperty.resolveWith(
-                    (Set<MaterialState> states) {
+                  fillColor: WidgetStateProperty.resolveWith(
+                    (Set<WidgetState> states) {
                       // Customize the fill color based on the checkbox's state
-                      if (states.contains(MaterialState.selected)) {
+                      if (states.contains(WidgetState.selected)) {
                         return const Color(0xFFA5A5A5); // Color when checked
                       }
                       return Color(0xFFFFFFFF); // Color when unchecked

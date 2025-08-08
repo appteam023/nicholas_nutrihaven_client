@@ -3,32 +3,36 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:nicholas_nutrihaven/Utils/Const/color_const.dart';
 import 'package:nicholas_nutrihaven/Utils/Extensions/text_extension.dart';
 import 'package:nicholas_nutrihaven/controllers/addPreferences.dart';
 
-import '../../../../Config/AppRoutes/routes_imports.dart';
-import '../widgets/circluar_button.dart';
-import '../widgets/grad_button.dart';
 
 class WeightInfo extends StatefulWidget {
+  const WeightInfo({super.key});
+
   @override
   State<WeightInfo> createState() => _WeightInfoState();
 }
 
-final AddpreferencesController addpreferencesController =
-    Get.put(AddpreferencesController());
 
 class _WeightInfoState extends State<WeightInfo> {
+  late final AddpreferencesController addPreferencesController;
   final FixedExtentScrollController _controller =
       FixedExtentScrollController(initialItem: 36);
 
   // Start from 54 lbs
-  int selectedWeight = 54;
+  int? selectedWeight = 54;
+
+  @override
+  void initState() {
+    super.initState();
+    addPreferencesController =  Get.find<AddpreferencesController>();
+  }
 
   @override
   Widget build(BuildContext context) {
+    selectedWeight = addPreferencesController.weight ?? 54;
     return Scaffold(
       body: Center(
         child: Column(
@@ -76,8 +80,8 @@ class _WeightInfoState extends State<WeightInfo> {
                   onSelectedItemChanged: (index) {
                     setState(() {
                       selectedWeight = index + 18;
-                      addpreferencesController.weight = selectedWeight;
-                      log(addpreferencesController.weight.toString());
+                      addPreferencesController.weight = selectedWeight;
+                      log(addPreferencesController.weight.toString());
                     });
                   },
                   physics: const FixedExtentScrollPhysics(),

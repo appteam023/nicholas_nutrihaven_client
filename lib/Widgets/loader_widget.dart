@@ -9,7 +9,9 @@ showLoader(bool val) {
     print("true----${val}");
   } else {
     print("false----${val}");
-    Get.back();
+    if (Get.isDialogOpen != null && Get.isDialogOpen!) {
+      Get.back();
+    }
     CustomLoadingWidget(
       isLoading: val,
     );

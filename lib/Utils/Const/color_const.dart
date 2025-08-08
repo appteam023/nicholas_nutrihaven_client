@@ -19,8 +19,6 @@ Color containerColor = const Color(0xFFF9FAFE);
 Color seaGreen = const Color(0XFF0FA37F);
 Color mustardYellow = const Color(0xFF9A8947);
 
-
-
 // Color iconColor = const Color(0xFF272B35);
 
 List<BoxShadow> boxShadow = [
@@ -36,6 +34,11 @@ LinearGradient gradientYellow = const LinearGradient(
   begin: Alignment.topCenter,
   end: Alignment.bottomCenter,
   colors: [Color(0xffE4BB49), Color(0xffAB7D01)],
+);
+LinearGradient gradientGrey = const LinearGradient(
+  begin: Alignment.topCenter,
+  end: Alignment.bottomCenter,
+  colors: [Colors.grey, Colors.grey],
 );
 
 /// For Material Colors

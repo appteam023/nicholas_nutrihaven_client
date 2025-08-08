@@ -148,25 +148,34 @@ class Signin extends StatelessWidget {
                                           signInController.isHide.value,
                                       scribbleEnabled: true,
                                       decoration: InputDecoration(
-                                          contentPadding: EdgeInsets.zero,
-                                          labelText: "Enter Your Password",
-                                          labelStyle:
-                                              TextStyle(color: Colors.grey),
-                                          suffixIcon: IconButton(
-                                              onPressed: () {
-                                                signInController
-                                                    .setIsHidePass();
-                                              },
-                                              icon: Icon(Icons
-                                                  .remove_red_eye_rounded)),
-                                          enabledBorder: UnderlineInputBorder(
-                                              borderSide: BorderSide(
-                                                  color: Colors.grey)),
-                                          focusedBorder: UnderlineInputBorder(
-                                              borderSide: BorderSide(
-                                                  color: Colors.grey))),
+                                        contentPadding: EdgeInsets.zero,
+                                        labelText: "Enter Your Password",
+                                        labelStyle:
+                                            TextStyle(color: Colors.grey),
+                                        suffixIcon: IconButton(
+                                          onPressed: () {
+                                            signInController.setIsHidePass();
+                                          },
+                                          icon: Icon(
+                                            signInController.isHide.value
+                                                ? Icons
+                                                    .visibility_off // Eye with slash when hidden
+                                                : Icons
+                                                    .visibility, // Normal eye when visible
+                                          ),
+                                        ),
+                                        enabledBorder: UnderlineInputBorder(
+                                          borderSide:
+                                              BorderSide(color: Colors.grey),
+                                        ),
+                                        focusedBorder: UnderlineInputBorder(
+                                          borderSide:
+                                              BorderSide(color: Colors.grey),
+                                        ),
+                                      ),
                                     ),
                                   ),
+
                                   10.verticalSpace,
                                   Align(
                                       alignment: Alignment.topRight,
@@ -344,7 +353,12 @@ class Signin extends StatelessWidget {
                                                 .toggleHidePassword();
                                           },
                                           icon: Icon(
-                                              Icons.remove_red_eye_rounded),
+                                            signUpController.isHide.value
+                                                ? Icons
+                                                    .visibility_off // Eye with slash when hidden
+                                                : Icons
+                                                    .visibility, // Normal eye when visible
+                                          ),
                                         ),
                                         enabledBorder: UnderlineInputBorder(
                                           borderSide:
@@ -376,7 +390,12 @@ class Signin extends StatelessWidget {
                                                 .toggleConfirmHidePassword();
                                           },
                                           icon: Icon(
-                                              Icons.remove_red_eye_rounded),
+                                            signUpController.isConfirmHide.value
+                                                ? Icons
+                                                    .visibility_off // Eye with slash when hidden
+                                                : Icons
+                                                    .visibility, // Normal eye when visible
+                                          ),
                                         ),
                                         enabledBorder: UnderlineInputBorder(
                                           borderSide:

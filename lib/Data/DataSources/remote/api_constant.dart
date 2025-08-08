@@ -5,7 +5,8 @@ import '../../../Helpers/get_storare_helper.dart';
 class ApiConstants {
   ApiConstants._();
 
-  static const baseUrl = "http://nutrihaven.testdevlink.net/";
+  // static const baseUrl = "http://nutrihaven.testdevlink.net/";
+  static const baseUrl = "https://nutrihaven.testdevlink.net/";
   static const mainUrl = "$baseUrl/api/";
   static var publishKey = "";
   static var secretKey = "";

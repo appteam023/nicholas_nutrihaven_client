@@ -5,12 +5,19 @@ import 'package:nicholas_nutrihaven/Data/Model/ExcercisePlaceModel/excersice_pla
 class ExercisePlaceController extends GetxController {
   final NetworkApiService _apiService = NetworkApiService();
 
-  var exercisePlaces = <ExercisePlace>[].obs; 
-  var isLoading = true.obs;
+  var exercisePlaces = <ExercisePlace>[
+    ExercisePlace(id: "00", name: "Large Gym", description: "Nutri Haven will complete a starter equipment list based on the location you pick.", isSelected: false),
+    ExercisePlace(id: "01", name: "Small Gym", description: "Compact public gyms with limited equipment", isSelected: false),
+    ExercisePlace(id: "02", name: "Garage Gym", description: "Barbells, Squat rack, dumbbells and more", isSelected: false),
+    ExercisePlace(id: "03", name: "At Home", description: "Limited equipment such as dumbbells, bands, pull-up bars, etc", isSelected: true),
+    ExercisePlace(id: "03", name: "Body weight Only", description: "Workout anywhere without gym equipment", isSelected: false),
+    ExercisePlace(id: "03", name: "Custom", description: "Workout anywhere without gym equipment", isSelected: false),
+  ].obs;
+  var isLoading = false.obs;
 
   @override
   void onInit() {
-    fetchExercisePlaces();
+    // fetchExercisePlaces();
     super.onInit();
   }
 

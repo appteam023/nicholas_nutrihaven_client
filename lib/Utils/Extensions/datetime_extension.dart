@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 
 String DateFormator(DateTime date) {
@@ -50,3 +51,40 @@ String TimeFormatter(String date) {
     return "${days.toString()} days ago";
   }
 }
+
+extension DateTimeParsing on String? {
+
+  DateTime? get toDateTime {
+    if (this == null || this!.isEmpty) {
+      return null;
+    }
+
+    try {
+      DateTime parsedDate = DateTime.parse(this!);
+      return parsedDate.toLocal(); // Convert to local timezone if needed
+    } catch (e) {
+      debugPrint("Error parsing DateTime: $e");
+      return null; // Return null if parsing fails
+    }
+  }
+}
+
+extension DateTimeAgo on DateTime {
+  String get timeAgo {
+    final difference = DateTime.now().difference(this);
+
+    if (difference.inDays > 0) {
+      return '${difference.inDays} ${difference.inDays == 1 ? 'day' : 'days'} ago';
+    } else if (difference.inHours > 0) {
+      return '${difference.inHours} ${difference.inHours == 1 ? 'hour' : 'hours'} ago';
+    } else if (difference.inMinutes > 0) {
+      return '${difference.inMinutes} ${difference.inMinutes == 1 ? 'minute' : 'minutes'} ago';
+    } else if (difference.inSeconds > 0) {
+      return '${difference.inSeconds} ${difference.inSeconds == 1 ? 'second' : 'seconds'} ago';
+    } else {
+      return 'Just now';
+    }
+  }
+}
+
+

@@ -32,24 +32,24 @@ class ExcersicePlaceModel {
 }
 
 class ExercisePlace {
-  final String id;
-  final String name;
-  final String description;
-  final bool isDeleted;
-  final DateTime createdAt;
-  final DateTime updatedAt;
-  final int v;
-  final bool isSelected;
+  String? id;
+  String? name;
+  String? description;
+  bool? isDeleted;
+  DateTime? createdAt;
+  DateTime? updatedAt;
+  int? v;
+  bool? isSelected;
 
   ExercisePlace({
-    required this.id,
-    required this.name,
-    required this.description,
-    required this.isDeleted,
-    required this.createdAt,
-    required this.updatedAt,
-    required this.v,
-    required this.isSelected,
+    this.id,
+    this.name,
+    this.description,
+    this.isDeleted,
+    this.createdAt,
+    this.updatedAt,
+    this.v,
+    this.isSelected,
   });
 
   factory ExercisePlace.fromJson(String str) =>
@@ -73,8 +73,8 @@ class ExercisePlace {
         "name": name,
         "description": description,
         "isDeleted": isDeleted,
-        "createdAt": createdAt.toIso8601String(),
-        "updatedAt": updatedAt.toIso8601String(),
+        "createdAt": createdAt?.toIso8601String(),
+        "updatedAt": updatedAt?.toIso8601String(),
         "__v": v,
         "isSelected": isSelected,
       };

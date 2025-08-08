@@ -27,9 +27,9 @@ class NetworkApiService implements BaseApiServices {
       Map<String, dynamic>? data,
       Map<String, dynamic>? queryParameter}) async {
     try {
-      var token;
+      String? token;
       if (isTokenRequired) {
-        token = await getToken();
+        token = getToken();
         print("token ==> $token");
       }
       var response = await dio
@@ -61,9 +61,9 @@ class NetworkApiService implements BaseApiServices {
       required dynamic data,
       bool isTokenRequired = true}) async {
     try {
-      var token;
+      String? token;
       if (isTokenRequired) {
-        token = await getToken();
+        token = getToken();
         debugPrint("user token: $token");
       }
 
@@ -88,17 +88,15 @@ class NetworkApiService implements BaseApiServices {
     }
   }
 
-
-
   @override
   Future PutResponse(
       {required String url,
       required var data,
       bool isTokenRequired = true}) async {
     try {
-      var token;
+      String? token;
       if (isTokenRequired) {
-        token = await getToken();
+        token = getToken();
       }
       // debugPrint("user token: $token");
       // debugPrint("==================API REQUEST==================");
@@ -127,10 +125,10 @@ class NetworkApiService implements BaseApiServices {
       required FormData data,
       bool isTokenRequired = true}) async {
     try {
-      var token;
+      String? token;
       if (isTokenRequired) {
         print("token ==> $token");
-        token = await getToken();
+        token = getToken();
       }
       // debugPrint("user token: $token");
       // debugPrint("==================API REQUEST==================");
