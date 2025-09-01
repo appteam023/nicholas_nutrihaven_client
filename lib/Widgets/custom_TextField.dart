@@ -60,8 +60,11 @@ class CustomTextField extends StatelessWidget {
         maxLines: maxLines,
         textInputAction: inputAction ?? TextInputAction.done,
         keyboardType: keyboardType,
+        onTapOutside: (event) {
+          FocusScope.of(context).unfocus();
+        },
         decoration: InputDecoration(
-          contentPadding: EdgeInsets.zero,
+          contentPadding: EdgeInsets.only(left: radius != null? 20.0 : 0),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(radius ?? 200.r),
             borderSide:  BorderSide(
@@ -75,6 +78,12 @@ class CustomTextField extends StatelessWidget {
             ),
           ),
           enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(radius ?? 200.r),
+            borderSide:  BorderSide(
+              color: secondary,
+            ),
+          ),
+          disabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(radius ?? 200.r),
             borderSide:  BorderSide(
               color: secondary,

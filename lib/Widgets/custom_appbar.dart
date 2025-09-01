@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import 'package:nicholas_nutrihaven/Utils/Const/color_const.dart';
 import 'package:nicholas_nutrihaven/Utils/Extensions/text_extension.dart';
 
+import 'custom_TextField.dart';
+
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String? title;
   final IconData? leadingIcon;
@@ -12,9 +14,12 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? onActionPressed;
   final Widget? actionImage;
   final Color? actionImageBG;
+  final bool searchField;
+  final void Function(String)? onChanged;
+
 
   const CustomAppBar({
-    Key? key,
+    super.key,
     this.title,
     this.leadingIcon,
     this.onLeadingPressed,
@@ -22,7 +27,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.onActionPressed,
     this.actionImage,
     this.actionImageBG,
-  }) : super(key: key);
+    this.searchField = false,
+    this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +46,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           margin:
               EdgeInsets.only(left: horizontalPadding, bottom: 5.h, top: 5.h),
           decoration: BoxDecoration(
-            color: secondary.withOpacity(0.1),
+            color: secondary.withValues(alpha: 0.1),
             shape: BoxShape.circle,
             // borderRadius: BorderRadius.circular(100.r),
           ),
@@ -78,7 +85,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 right: horizontalPadding, top: 5.h, bottom: 5.h),
             child: CircleAvatar(
               radius: 30.r,
-              backgroundColor: secondary.withOpacity(0.1),
+              backgroundColor: secondary.withValues(alpha: 0.1),
               child: IconButton(
                 icon: Icon(actionIcon, color: Colors.white),
                 onPressed: onActionPressed,
@@ -86,9 +93,31 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             ),
           ),
       ],
+      bottom: PreferredSize(
+        preferredSize: Size(MediaQuery.sizeOf(context).width, searchField ? 50 : 0),
+        child: Visibility(
+          visible: searchField,
+          child: Container(
+            padding: const EdgeInsets.all(8.0),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(100)
+            ),
+            child: CustomTextField(
+              hintText: 'Search',
+              radius: 100.0,
+              onChanged: (val) {
+                if (onChanged != null) {
+                  onChanged!(val);
+                }
+              }
+              // controller:
+            ),
+          ),
+        ),
+      ),
     );
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => Size.fromHeight(searchField ? kToolbarHeight + 50 : kToolbarHeight);
 }

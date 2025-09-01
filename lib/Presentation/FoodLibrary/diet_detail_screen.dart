@@ -1,77 +1,126 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:nicholas_nutrihaven/Utils/Const/asset_const.dart';
 import 'package:nicholas_nutrihaven/Utils/Const/color_const.dart';
 import 'package:nicholas_nutrihaven/Utils/Extensions/text_extension.dart';
 import 'package:nicholas_nutrihaven/Widgets/custom_appbar.dart';
 
+import 'food_lib_controller.dart';
+
 class DietDetailScreen extends StatelessWidget {
-  const DietDetailScreen({super.key});
+  const DietDetailScreen({
+    super.key,
+  });
+
+
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: themeColor,
-      appBar: const CustomAppBar(
-        title: 'Keto Diet',
-        actionIcon: Icons.search,
-      ),
-      body: Column(
-        children: [
-          Center(child: Image.asset(ImageConst.diet)),
-          Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: horizontalPadding,
-            ),
-            child: Row(
-              children: [
-                Text(
-                  'Ingredients',
-                  style: context.headlineMedium,
-                ),
-                const Spacer(),
-                Icon(
-                  Icons.watch_later_outlined,
-                  color: grey,
-                ),
-                5.horizontalSpace,
-                Text(
-                  '15 min',
-                  style: context.labelSmall!.copyWith(color: grey),
-                ),
-              ],
-            ),
+    return GetX<FoodLibController>(
+      init: Get.find<FoodLibController>(),
+      initState: (state) {
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          state.controller?.fetchMenuItemDetails(
+            Get.parameters["id"].toString()
+          );
+        });
+      },
+      dispose: (state) {
+        state.controller!.foodItemDetails.value = null;
+      },
+      builder: (controller) {
+        return Scaffold(
+          backgroundColor: themeColor,
+          appBar: CustomAppBar(
+            title: controller.foodItemDetails.value == null ? 'Error' : "${controller.foodItemDetails.value?.title}",
+            // actionIcon: Icons.search,
           ),
-          20.verticalSpace,
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(25.r),
-                  topRight: Radius.circular(25.r),
+          body: controller.foodItemDetails.value != null ?
+          Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Center(
+                  child: Image.network(
+                    "${controller.foodItemDetails.value?.image}",
+                    errorBuilder: (context, _, stack) {
+                      return Image.asset(
+                        ImageConst.foodLib,
+                      );
+                    },
+                    fit: BoxFit.cover,
+                  )
                 ),
               ),
-              child: ListView.separated(
-                padding: EdgeInsets.only(top: 30.h),
-                itemCount: ingredients.length,
-                itemBuilder: (context, index) {
-                  return IngredientTile(
-                    title: ingredients[index].title,
-                    image: ingredients[index].image,
-                    quantity: ingredients[index].quantity,
-                    unit: ingredients[index].unit,
-                  );
-                },
-                separatorBuilder: (context, index) {
-                  return 15.verticalSpace;
-                },
+              Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: horizontalPadding,
+                ),
+                child: Row(
+                  children: [
+                    Text(
+                      'Ingredients',
+                      style: context.headlineMedium,
+                    ),
+                    const Spacer(),
+                    Icon(
+                      Icons.watch_later_outlined,
+                      color: grey,
+                    ),
+                    5.horizontalSpace,
+                    Text(
+                      '${controller.foodItemDetails.value?.cookingMinutes} min',
+                      style: context.labelSmall!.copyWith(color: grey),
+                    ),
+                  ],
+                ),
               ),
+              20.verticalSpace,
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(25.r),
+                      topRight: Radius.circular(25.r),
+                    ),
+                  ),
+                  child: controller.foodItemDetails.value?.extendedIngredients != null &&
+                      (controller.foodItemDetails.value?.extendedIngredients?.isNotEmpty ?? false)
+                      ? ListView.separated(
+                    padding: EdgeInsets.only(top: 30.h, bottom: 40.h),
+                    itemCount: controller.foodItemDetails.value?.extendedIngredients?.length ?? 0,
+                    itemBuilder: (context, index) {
+                      final ingredient = controller.foodItemDetails.value?.extendedIngredients![index];
+                      return IngredientTile(
+                        title: "${ingredient?.nameClean?.capitalizeFirst ?? ingredient?.nameClean?.capitalizeFirst}",
+                        image: "https://api.spoonacular.com/${ingredient?.image}",
+                        quantity: "${ingredient?.amount}",
+                        unit: "${ingredient?.measures?.us?.unitShort ?? ingredient?.unit}",
+                      );
+                    },
+                    separatorBuilder: (context, index) {
+                      return 15.verticalSpace;
+                    },
+                  ) : Text(
+                    'Ingredients not found',
+                    style: context.headlineMedium?.copyWith(
+                      color: Colors.black
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          )
+          : Center(
+            child: Text(
+              'Details not found',
+              style: context.headlineMedium,
             ),
-          ),
-        ],
-      ),
+          )
+        );
+      },
     );
   }
 }
@@ -95,16 +144,21 @@ class IngredientTile extends StatelessWidget {
     return ListTile(
       leading: Container(
         decoration: BoxDecoration(
-          color: grey.withOpacity(
-            0.2,
+          color: grey.withValues(
+            alpha: 0.2,
           ),
           shape: BoxShape.circle,
         ),
         padding: EdgeInsets.all(
           10.h,
         ),
-        child: Image.asset(
+        child: Image.network(
           image,
+          errorBuilder: (context, _, stack) {
+            return Image.asset(
+              ImageConst.ingredient1,
+            );
+          },
         ),
       ),
       title: Text(
@@ -120,7 +174,7 @@ class IngredientTile extends StatelessWidget {
             TextSpan(
               text: ' $unit',
               style: context.bodySmall!.copyWith(
-                color: primary.withOpacity(0.7),
+                color: primary.withValues(alpha: 0.7),
               ),
             ),
           ],

@@ -12,4 +12,5 @@ class ApiConstants {
   static var secretKey = "";
   static final storage = GetStorage();
   static var userId = "";
+  static var foodLibAPIKey = "ad5927de50824cc5a961535177d92f10";
 }
