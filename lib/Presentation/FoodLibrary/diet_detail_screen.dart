@@ -20,6 +20,7 @@ class DietDetailScreen extends StatelessWidget {
     return GetX<FoodLibController>(
       init: Get.find<FoodLibController>(),
       initState: (state) {
+        state.controller?.foodItemDetails.value = null;
         WidgetsBinding.instance.addPostFrameCallback((_) async {
           state.controller?.fetchMenuItemDetails(
             Get.parameters["id"].toString()
@@ -27,7 +28,9 @@ class DietDetailScreen extends StatelessWidget {
         });
       },
       dispose: (state) {
-        state.controller!.foodItemDetails.value = null;
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          state.controller?.foodItemDetails.value = null;
+        });
       },
       builder: (controller) {
         return Scaffold(
