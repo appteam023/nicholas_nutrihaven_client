@@ -106,7 +106,7 @@ class DrawerScreen extends StatelessWidget {
               ListTile(
                 visualDensity: const VisualDensity(vertical: -4),
                 onTap: () {
-                  Get.toNamed(AppRoutes.foodLibrary);
+                  Get.toNamed(AppRoutes.dietCuisineSelectionView);
                 },
                 leading: const Icon(Icons.note_add_outlined),
                 title: const Text('Diet Plan'),

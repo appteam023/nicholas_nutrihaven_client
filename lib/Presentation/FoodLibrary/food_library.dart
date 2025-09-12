@@ -13,8 +13,12 @@ class FoodLibrary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetX<FoodLibController>(
-      init: FoodLibController(),
-      initState: (_) {},
+      init: Get.find<FoodLibController>(),
+      initState: (state) {
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          state.controller?.fetchMenuItems();
+        });
+      },
       builder: (controller) {
         return Scaffold(
           appBar: CustomAppBar(
@@ -43,11 +47,12 @@ class FoodLibrary extends StatelessWidget {
                     child: ListView.separated(
                       padding: EdgeInsets.symmetric(horizontal: 13),
                       scrollDirection: Axis.vertical,
-                      itemCount: controller.listOfMenuItems.length,
+                      itemCount: controller.listOfRecipeItems.length,
                       itemBuilder: (context, index) {
-                        final element = controller.listOfMenuItems[index];
+                        final element = controller.listOfRecipeItems[index];
                         return InkWell(
                           onTap: () {
+                            controller.selectedRecipe = element;
                             Get.toNamed(
                               AppRoutes.dietDetail,
                               parameters: {
@@ -64,6 +69,7 @@ class FoodLibrary extends StatelessWidget {
                                 //   horizontal: 20, vertical: 15.h
                                 // ),
                                 height: 180.h,
+                                clipBehavior: Clip.antiAlias,
                                 width: MediaQuery.sizeOf(context).width,
                                 decoration: BoxDecoration(
                                   // color: primary,
@@ -71,6 +77,7 @@ class FoodLibrary extends StatelessWidget {
                                 ),
                                 child: Image.network(
                                   "${element.image}",
+                                  fit: BoxFit.cover,
                                   errorBuilder: (context, _, stack) {
                                     return Image.asset(
                                       ImageConst.foodLib,
@@ -89,25 +96,27 @@ class FoodLibrary extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(10.r),
                                   gradient: LinearGradient(
                                     colors: [
-                                      Colors.black.withValues(alpha: 0.2),
-                                      Colors.black.withValues(alpha: 0.1),
+                                      // Colors.black.withValues(alpha: 0.7),
+                                      Colors.black.withValues(alpha: 0.8),
                                       // Colors.transparent,
-                                      Colors.black.withValues(alpha: 0.7),
+                                      Colors.black.withValues(alpha: 0.15),
                                     ],
-                                    begin: Alignment.bottomCenter,
-                                    end: Alignment.topCenter,
+                                    begin: Alignment.centerLeft,
+                                    end: Alignment.centerRight,
                                   ),
                                 ),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   // mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Flexible(
                                       child: Text(
                                         '${element.title} ${element.title}',
-                                        style: context.headlineSmall,
-                                        maxLines: 3,
+                                        style: context.headlineSmall?.copyWith(
+                                          fontSize: 22
+                                        ),
+                                        maxLines: 4,
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
@@ -116,38 +125,6 @@ class FoodLibrary extends StatelessWidget {
                                     //   style: context.titleSmall!
                                     //       .copyWith(fontFamily: 'Inter'),
                                     // ),
-                                    20.verticalSpace,
-                                    Container(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 4
-                                      ),
-                                      constraints: BoxConstraints(
-                                        minHeight: 26.h,
-                                        minWidth: 79.w,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white.withValues(alpha: 0.8),
-                                        borderRadius: BorderRadius.circular(
-                                          10.r
-                                        )
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Image.asset(
-                                            ImageConst.diet, scale: 9,
-                                          ),
-                                          3.horizontalSpace,
-                                          Text(
-                                            'Serving: ${element.servings?.size} ${element.servings?.unit}',
-                                            style: context.labelSmall!.copyWith(
-                                              fontFamily: 'Product Sans',
-                                              fontSize: 12.sp
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
                                     10.verticalSpace,
                                   ],
                                 ),

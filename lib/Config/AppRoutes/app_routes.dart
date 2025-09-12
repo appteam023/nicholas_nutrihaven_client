@@ -28,6 +28,7 @@ class AppRoutes {
   static String chestWorkoutVideos = '/chestWorkoutVideos';
   static String chestAndTriceps = '/chestAndTriceps';
   static String foodLibrary = '/foodLibrary';
+  static String dietCuisineSelectionView = '/dietCuisineSelectionView';
   static String dietList = '/dietList';
   static String dietDetail = '/dietDetail';
   static String addNewMuscle = '/addNewMuscle';
@@ -126,6 +127,10 @@ class AppRoutes {
     GetPage(
       name: foodLibrary,
       page: () => const FoodLibrary(),
+    ),
+    GetPage(
+      name: dietCuisineSelectionView,
+      page: () => const DietCuisineSelectionView(),
     ),
     GetPage(
       name: dietList,

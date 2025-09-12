@@ -65,6 +65,7 @@ class ImageConst {
   static String keto = "${image}keto.png";
   static String leftOverlay = "${image}left_overlay.png";
   static String diet = "${image}diet.png";
+  static String dietBg = "${image}diet_bg.jpg";
   static String ingredient1 = "${image}ingredient1.png";
   static String bicep = "${image}biceps.png";
   static String bicep2x = "${image}bicep2x.png";

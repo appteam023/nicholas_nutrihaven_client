@@ -31,6 +31,6 @@ class ApiEndPointUrls {
   static const postExerciseMuscle = "post-exercise-muscle";
 
   // Food-Library
-  static const foodMenu = "https://api.spoonacular.com/food/menuItems/search";
+  static const foodMenu = "https://api.spoonacular.com/recipes/complexSearch";
   static const foodItemDetails = "https://api.spoonacular.com/recipes/";
 }

@@ -123,7 +123,7 @@ class HomeScreen extends StatelessWidget {
                         Expanded(
                           child: GestureDetector(
                             onTap: () {
-                              Get.toNamed(AppRoutes.foodLibrary);
+                              Get.toNamed(AppRoutes.dietCuisineSelectionView);
                             },
                             child: Container(
                               padding: EdgeInsets.symmetric(

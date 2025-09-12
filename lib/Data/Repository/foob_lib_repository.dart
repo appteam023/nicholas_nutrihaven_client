@@ -1,3 +1,6 @@
+export '../Model/FoodLibModels/recipe_model.dart';
+
+
 import 'dart:developer';
 
 import '../DataSources/remote/api_constant.dart';
@@ -6,11 +9,13 @@ import '../DataSources/remote/network_api_service.dart';
 
 import '../Model/FoodLibModels/food_item_details_model.dart';
 import '../Model/FoodLibModels/menu_list_model.dart';
+import '../Model/FoodLibModels/recipe_model.dart';
 
 class FoodLibRepository {
   final NetworkApiService _networkApiService = NetworkApiService();
 
-  Future<FoodMenuModel> getFoodMenu({String? query, int pageSize = 100}) async {
+  Future<RecipeModel> getFoodMenu({String? query, int pageSize = 50,
+    required String cuisine, required String diet}) async {
     try {
       dynamic response = await _networkApiService.GetResponse(
         url: ApiEndPointUrls.foodMenu,
@@ -19,10 +24,13 @@ class FoodLibRepository {
           "query": query,
           "apiKey": ApiConstants.foodLibAPIKey,
           "number": pageSize,
+          "diet": diet,
+          "cuisine": cuisine,
+          "sort": "popularity",
         }
       );
       log(response.toString());
-      return FoodMenuModel.fromJson(response);
+      return RecipeModel.fromJson(response);
     } catch (e) {
       rethrow;
     }
