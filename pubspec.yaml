@@ -50,6 +50,9 @@ dependencies:
   video_player: ^2.9.2
   better_player_plus: ^1.0.8
   skeletonizer: ^1.4.3
+  dropdown_button2: 2.3.9
+  flutter_html: 3.0.0
+  url_launcher: 6.3.1
 
 
 dev_dependencies:
@@ -77,6 +80,10 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/
+    - assets/images/food_lib/
+    - assets/images/food_lib/characteristics/
+    - assets/images/food_lib/gif/
+    - assets/images/food_lib/nutrients/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

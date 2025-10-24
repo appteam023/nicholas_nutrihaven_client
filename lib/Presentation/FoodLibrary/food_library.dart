@@ -5,6 +5,9 @@ import 'package:nicholas_nutrihaven/Utils/Extensions/text_extension.dart';
 import 'package:nicholas_nutrihaven/Widgets/custom_appbar.dart';
 import '../../Config/AppRoutes/routes_imports.dart';
 import '../../Utils/Const/asset_const.dart';
+import '../../Utils/Const/color_const.dart';
+import '../../Widgets/custom_dropdown_widget.dart';
+import 'data_provider/models/cuisine_model.dart';
 import 'food_lib_controller.dart';
 
 class FoodLibrary extends StatelessWidget {
@@ -27,6 +30,7 @@ class FoodLibrary extends StatelessWidget {
             onActionPressed: controller.toggleVisibility,
             title: 'Food Library',
             searchField: controller.searchFieldVisibility.value,
+            searchTFCtrl: controller.searchTFCtrl,
             onChanged: (val) {
               if (val.length >= 2) {
                 if (controller.searchQuery.value == val.trim()) {
@@ -43,8 +47,21 @@ class FoodLibrary extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 15),
               child: Column(
                 children: [
+                  CustomDropdownButton<CuisineModel>(
+                    hint: 'Select Cuisine',
+                    selectedValue: controller.selectedCuisine.value,
+                    dropdownItems: CuisineData.cuisineList,
+                    buttonHeight: 22,
+                    onChanged: (value) {
+                      controller.selectedCuisine.value = value;
+                      controller.fetchMenuItems(reload: true, searchQuery: controller.searchTFCtrl.text);
+                    },
+                    showSearchField: true,
+                  ),
+                  SizedBox(height: 20,),
                   Expanded(
-                    child: ListView.separated(
+                    child: controller.listOfRecipeItems.isNotEmpty ?
+                    ListView.separated(
                       padding: EdgeInsets.symmetric(horizontal: 13),
                       scrollDirection: Axis.vertical,
                       itemCount: controller.listOfRecipeItems.length,
@@ -112,7 +129,7 @@ class FoodLibrary extends StatelessWidget {
                                   children: [
                                     Flexible(
                                       child: Text(
-                                        '${element.title} ${element.title}',
+                                        '${element.title}',
                                         style: context.headlineSmall?.copyWith(
                                           fontSize: 22
                                         ),
@@ -138,6 +155,13 @@ class FoodLibrary extends StatelessWidget {
                           height: 20.h,
                         );
                       },
+                    ) : Center(
+                      child: Text(
+                        'No recipes found',
+                        style: context.headlineMedium?.copyWith(
+                          color: grey
+                        ),
+                      ),
                     ),
                   ),
                 ],

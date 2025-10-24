@@ -138,7 +138,7 @@ class AppRoutes {
     ),
     GetPage(
       name: dietDetail,
-      page: () => const DietDetailScreen(),
+      page: () => const RecipeDetailedView()
     ),
     GetPage(
       name: addNewMuscle,

@@ -159,6 +159,7 @@ class HomeScreen extends StatelessWidget {
               
                     ///Start Your WorkOut
                     StartWorkoutWidget(),
+                    SizedBox(height: 70,)
                   ],
                 ),
               ),

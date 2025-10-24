@@ -6,4 +6,9 @@ class CuisineModel {
     required this.name,
     required this.flagIcon,
   });
+
+  @override
+  String toString() {
+    return name;
+  }
 }

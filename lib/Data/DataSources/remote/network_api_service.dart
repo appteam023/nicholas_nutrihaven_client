@@ -43,6 +43,7 @@ class NetworkApiService implements BaseApiServices {
           )
           .timeout(const Duration(seconds: 20));
       debugPrint("==================API RESPONSE==================");
+      debugPrint(response.realUri.toString());
       debugPrint(response.statusCode.toString());
       debugPrint(response.data.toString());
       return response.data;

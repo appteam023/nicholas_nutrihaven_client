@@ -14,6 +14,7 @@ class FoodItemDetailsModel {
   bool? cheap;
   bool? veryPopular;
   bool? sustainable;
+  bool? lowFodmap;
   num? weightWatcherSmartPoints;
   String? gaps;
   num? preparationMinutes;
@@ -21,13 +22,19 @@ class FoodItemDetailsModel {
   num? aggregateLikes;
   num? healthScore;
   String? creditsText;
+  dynamic license;
   String? sourceName;
   double? pricePerServing;
   List<ExtendedIngredients>? extendedIngredients;
+  Nutrition? nutrition;
   String? summary;
+  List<String>? cuisines;
+  List<String>? dishTypes;
+  List<String>? diets;
   String? instructions;
   List<AnalyzedInstructions>? analyzedInstructions;
   double? spoonacularScore;
+  String? spoonacularSourceUrl;
 
   FoodItemDetailsModel(
       {this.id,
@@ -45,6 +52,7 @@ class FoodItemDetailsModel {
         this.cheap,
         this.veryPopular,
         this.sustainable,
+        this.lowFodmap,
         this.weightWatcherSmartPoints,
         this.gaps,
         this.preparationMinutes,
@@ -52,13 +60,19 @@ class FoodItemDetailsModel {
         this.aggregateLikes,
         this.healthScore,
         this.creditsText,
+        this.license,
         this.sourceName,
         this.pricePerServing,
         this.extendedIngredients,
+        this.nutrition,
         this.summary,
+        this.cuisines,
+        this.dishTypes,
+        this.diets,
         this.instructions,
         this.analyzedInstructions,
-        this.spoonacularScore});
+        this.spoonacularScore,
+        this.spoonacularSourceUrl});
 
   FoodItemDetailsModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -76,6 +90,7 @@ class FoodItemDetailsModel {
     cheap = json['cheap'];
     veryPopular = json['veryPopular'];
     sustainable = json['sustainable'];
+    lowFodmap = json['lowFodmap'];
     weightWatcherSmartPoints = json['weightWatcherSmartPoints'];
     gaps = json['gaps'];
     preparationMinutes = json['preparationMinutes'];
@@ -83,6 +98,7 @@ class FoodItemDetailsModel {
     aggregateLikes = json['aggregateLikes'];
     healthScore = json['healthScore'];
     creditsText = json['creditsText'];
+    license = json['license'];
     sourceName = json['sourceName'];
     pricePerServing = json['pricePerServing'];
     if (json['extendedIngredients'] != null) {
@@ -91,7 +107,13 @@ class FoodItemDetailsModel {
         extendedIngredients!.add(ExtendedIngredients.fromJson(v));
       });
     }
+    nutrition = json['nutrition'] != null
+        ? Nutrition.fromJson(json['nutrition'])
+        : null;
     summary = json['summary'];
+    cuisines = json['cuisines'].cast<String>();
+    dishTypes = json['dishTypes'].cast<String>();
+    diets = json['diets'].cast<String>();
     instructions = json['instructions'];
     if (json['analyzedInstructions'] != null) {
       analyzedInstructions = <AnalyzedInstructions>[];
@@ -100,6 +122,7 @@ class FoodItemDetailsModel {
       });
     }
     spoonacularScore = json['spoonacularScore'];
+    spoonacularSourceUrl = json['spoonacularSourceUrl'];
   }
 
   Map<String, dynamic> toJson() {
@@ -119,6 +142,7 @@ class FoodItemDetailsModel {
     data['cheap'] = cheap;
     data['veryPopular'] = veryPopular;
     data['sustainable'] = sustainable;
+    data['lowFodmap'] = lowFodmap;
     data['weightWatcherSmartPoints'] = weightWatcherSmartPoints;
     data['gaps'] = gaps;
     data['preparationMinutes'] = preparationMinutes;
@@ -126,19 +150,27 @@ class FoodItemDetailsModel {
     data['aggregateLikes'] = aggregateLikes;
     data['healthScore'] = healthScore;
     data['creditsText'] = creditsText;
+    data['license'] = license;
     data['sourceName'] = sourceName;
     data['pricePerServing'] = pricePerServing;
     if (extendedIngredients != null) {
       data['extendedIngredients'] =
           extendedIngredients!.map((v) => v.toJson()).toList();
     }
+    if (nutrition != null) {
+      data['nutrition'] = nutrition!.toJson();
+    }
     data['summary'] = summary;
+    data['cuisines'] = cuisines;
+    data['dishTypes'] = dishTypes;
+    data['diets'] = diets;
     data['instructions'] = instructions;
     if (analyzedInstructions != null) {
       data['analyzedInstructions'] =
           analyzedInstructions!.map((v) => v.toJson()).toList();
     }
     data['spoonacularScore'] = spoonacularScore;
+    data['spoonacularSourceUrl'] = spoonacularSourceUrl;
     return data;
   }
 }
@@ -253,6 +285,169 @@ class Us {
   }
 }
 
+class Nutrition {
+  List<Nutrients>? nutrients;
+  CaloricBreakdown? caloricBreakdown;
+  WeightPerServing? weightPerServing;
+
+  Nutrition(
+      {this.nutrients,
+        this.caloricBreakdown,
+        this.weightPerServing});
+
+  Nutrition.fromJson(Map<String, dynamic> json) {
+    if (json['nutrients'] != null) {
+      nutrients = <Nutrients>[];
+      json['nutrients'].forEach((v) {
+        nutrients!.add(Nutrients.fromJson(v));
+      });
+    }
+    caloricBreakdown = json['caloricBreakdown'] != null
+        ? CaloricBreakdown.fromJson(json['caloricBreakdown'])
+        : null;
+    weightPerServing = json['weightPerServing'] != null
+        ? WeightPerServing.fromJson(json['weightPerServing'])
+        : null;
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    if (nutrients != null) {
+      data['nutrients'] = nutrients!.map((v) => v.toJson()).toList();
+    }
+    if (caloricBreakdown != null) {
+      data['caloricBreakdown'] = caloricBreakdown!.toJson();
+    }
+    if (weightPerServing != null) {
+      data['weightPerServing'] = weightPerServing!.toJson();
+    }
+    return data;
+  }
+}
+
+class Nutrients {
+  String? name;
+  double? amount;
+  String? unit;
+  double? percentOfDailyNeeds;
+
+  Nutrients({this.name, this.amount, this.unit, this.percentOfDailyNeeds});
+
+  Nutrients.fromJson(Map<String, dynamic> json) {
+    name = json['name'];
+    amount = json['amount'];
+    unit = json['unit'];
+    percentOfDailyNeeds = json['percentOfDailyNeeds'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['name'] = name;
+    data['amount'] = amount;
+    data['unit'] = unit;
+    data['percentOfDailyNeeds'] = percentOfDailyNeeds;
+    return data;
+  }
+}
+
+class Properties {
+  String? name;
+  double? amount;
+  String? unit;
+
+  Properties({this.name, this.amount, this.unit});
+
+  Properties.fromJson(Map<String, dynamic> json) {
+    name = json['name'];
+    amount = json['amount'];
+    unit = json['unit'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['name'] = name;
+    data['amount'] = amount;
+    data['unit'] = unit;
+    return data;
+  }
+}
+
+class Ingredients {
+  int? id;
+  String? name;
+  double? amount;
+  String? unit;
+  List<Nutrients>? nutrients;
+
+  Ingredients({this.id, this.name, this.amount, this.unit, this.nutrients});
+
+  Ingredients.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    name = json['name'];
+    amount = json['amount'];
+    unit = json['unit'];
+    if (json['nutrients'] != null) {
+      nutrients = <Nutrients>[];
+      json['nutrients'].forEach((v) {
+        nutrients!.add(Nutrients.fromJson(v));
+      });
+    }
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['name'] = name;
+    data['amount'] = amount;
+    data['unit'] = unit;
+    if (nutrients != null) {
+      data['nutrients'] = nutrients!.map((v) => v.toJson()).toList();
+    }
+    return data;
+  }
+}
+
+class CaloricBreakdown {
+  double? percentProtein;
+  double? percentFat;
+  double? percentCarbs;
+
+  CaloricBreakdown({this.percentProtein, this.percentFat, this.percentCarbs});
+
+  CaloricBreakdown.fromJson(Map<String, dynamic> json) {
+    percentProtein = json['percentProtein'];
+    percentFat = json['percentFat'];
+    percentCarbs = json['percentCarbs'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['percentProtein'] = percentProtein;
+    data['percentFat'] = percentFat;
+    data['percentCarbs'] = percentCarbs;
+    return data;
+  }
+}
+
+class WeightPerServing {
+  int? amount;
+  String? unit;
+
+  WeightPerServing({this.amount, this.unit});
+
+  WeightPerServing.fromJson(Map<String, dynamic> json) {
+    amount = json['amount'];
+    unit = json['unit'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['amount'] = amount;
+    data['unit'] = unit;
+    return data;
+  }
+}
+
 class AnalyzedInstructions {
   String? name;
   List<Steps>? steps;
@@ -282,18 +477,19 @@ class AnalyzedInstructions {
 class Steps {
   int? number;
   String? step;
-  List<Ingredients>? ingredients;
+  List<StepIngredients>? ingredients;
   Length? length;
 
-  Steps({this.number, this.step, this.ingredients, this.length});
+  Steps(
+      {this.number, this.step, this.ingredients, this.length});
 
   Steps.fromJson(Map<String, dynamic> json) {
     number = json['number'];
     step = json['step'];
     if (json['ingredients'] != null) {
-      ingredients = <Ingredients>[];
+      ingredients = <StepIngredients>[];
       json['ingredients'].forEach((v) {
-        ingredients!.add(Ingredients.fromJson(v));
+        ingredients!.add(StepIngredients.fromJson(v));
       });
     }
     length = json['length'] != null ? Length.fromJson(json['length']) : null;
@@ -313,15 +509,15 @@ class Steps {
   }
 }
 
-class Ingredients {
+class StepIngredients {
   int? id;
   String? name;
   String? localizedName;
   String? image;
 
-  Ingredients({this.id, this.name, this.localizedName, this.image});
+  StepIngredients({this.id, this.name, this.localizedName, this.image});
 
-  Ingredients.fromJson(Map<String, dynamic> json) {
+  StepIngredients.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     name = json['name'];
     localizedName = json['localizedName'];

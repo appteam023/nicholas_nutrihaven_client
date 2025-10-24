@@ -8,25 +8,26 @@ import '../DataSources/remote/api_endpoints.dart';
 import '../DataSources/remote/network_api_service.dart';
 
 import '../Model/FoodLibModels/food_item_details_model.dart';
-import '../Model/FoodLibModels/menu_list_model.dart';
 import '../Model/FoodLibModels/recipe_model.dart';
 
 class FoodLibRepository {
   final NetworkApiService _networkApiService = NetworkApiService();
 
   Future<RecipeModel> getFoodMenu({String? query, int pageSize = 50,
-    required String cuisine, required String diet}) async {
+    String? cuisine, required String diet}) async {
     try {
       dynamic response = await _networkApiService.GetResponse(
         url: ApiEndPointUrls.foodMenu,
         isTokenRequired: false,
         queryParameter: {
-          "query": query,
+          if (query != null) "query": query,
           "apiKey": ApiConstants.foodLibAPIKey,
           "number": pageSize,
           "diet": diet,
-          "cuisine": cuisine,
+          if (cuisine != null && cuisine != "null") "cuisine": cuisine,
           "sort": "popularity",
+          "instructionsRequired": true,
+          "addRecipeInformation": true,
         }
       );
       log(response.toString());
@@ -43,6 +44,9 @@ class FoodLibRepository {
         isTokenRequired: false,
         queryParameter: {
           "apiKey": ApiConstants.foodLibAPIKey,
+          "includeNutrition": true,
+          "instructionsRequired": true,
+          "addRecipeInformation": true,
         }
       );
       log(response.toString());

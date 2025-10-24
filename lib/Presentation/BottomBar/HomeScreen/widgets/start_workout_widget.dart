@@ -48,7 +48,7 @@ class StartWorkoutWidget extends StatelessWidget {
                 ),
                 40.verticalSpace,
                 Text(
-                  'Kickstart Your\nFitness Journey Today\!',
+                  'Kickstart Your\nFitness Journey Today!',
                   style: context.titleSmall!
                       .copyWith(fontWeight: FontWeight.normal),
                 ),

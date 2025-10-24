@@ -15,6 +15,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Widget? actionImage;
   final Color? actionImageBG;
   final bool searchField;
+  final TextEditingController? searchTFCtrl;
   final void Function(String)? onChanged;
 
 
@@ -28,6 +29,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.actionImage,
     this.actionImageBG,
     this.searchField = false,
+    this.searchTFCtrl,
     this.onChanged,
   });
 
@@ -104,6 +106,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             ),
             child: CustomTextField(
               hintText: 'Search',
+              controller: searchTFCtrl,
               radius: 100.0,
               onChanged: (val) {
                 if (onChanged != null) {

@@ -24,7 +24,7 @@ class DietDetailScreen extends StatelessWidget {
         state.controller?.foodItemDetails.value = null;
         WidgetsBinding.instance.addPostFrameCallback((_) async {
           state.controller?.fetchMenuItemDetails(
-            Get.parameters["id"].toString()
+              Get.parameters["id"].toString()
           );
         });
       },
@@ -151,6 +151,7 @@ class IngredientTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
+      contentPadding: EdgeInsets.zero,
       leading: Container(
         decoration: BoxDecoration(
           color: grey.withValues(
@@ -163,6 +164,7 @@ class IngredientTile extends StatelessWidget {
         ),
         child: Image.asset(
           ImageConst.ingredient1,
+          height: 24,
         ),
         // Image.network(
         //   image,
@@ -175,7 +177,7 @@ class IngredientTile extends StatelessWidget {
       ),
       title: Text(
         title,
-        style: context.bodyLarge,
+        style: context.bodyMedium,
       ),
       trailing: Text.rich(
         TextSpan(

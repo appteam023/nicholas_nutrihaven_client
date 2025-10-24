@@ -2,6 +2,8 @@
 export 'data_provider/cuisine_data.dart';
 export 'data_provider/diet_data.dart';
 
+import 'package:url_launcher/url_launcher.dart';
+
 import 'data_provider/models/cuisine_model.dart';
 import 'data_provider/models/diet_model.dart';
 
@@ -26,20 +28,26 @@ class FoodLibController extends GetxController {
   Recipe? selectedRecipe;
   Rxn<FoodItemDetailsModel> foodItemDetails = Rxn<FoodItemDetailsModel>(null);
 
-  var stepperCount = 1.obs;
+  // var stepperCount = 1.obs;
   Rxn<DietModel> selectedDiet = Rxn<DietModel>(null);
   Rxn<CuisineModel> selectedCuisine = Rxn<CuisineModel>(null);
 
   RxString searchQuery = "".obs;
   Worker? searchWorker;
+  TextEditingController searchTFCtrl = TextEditingController();
+
+  Map<String, String> nutrients = {
+    "carbohydrates": "assets/images/food_lib/nutrients/1_carbohydrates.png",
+    "protein": "assets/images/food_lib/nutrients/2_protein.png",
+    "fiber": "assets/images/food_lib/nutrients/3_fiber.png",
+    "fat": "assets/images/food_lib/nutrients/4_fat.png",
+    "sodium": "assets/images/food_lib/nutrients/5_sodium.png",
+    "sugar": "assets/images/food_lib/nutrients/6_sugar.png",
+    "cholesterol": "assets/images/food_lib/nutrients/7_cholesterol.png",
+  };
 
 
 
-
-  @override
-  void onInit() {
-    super.onInit();
-  }
 
   @override
   void onReady() {
@@ -54,6 +62,7 @@ class FoodLibController extends GetxController {
   @override
   void onClose() {
     searchWorker?.dispose();
+    searchTFCtrl.dispose();
     super.onClose();
   }
 
@@ -61,7 +70,7 @@ class FoodLibController extends GetxController {
     searchFieldVisibility.value = !searchFieldVisibility.value;
   }
 
-  void fetchMenuItems({String? searchQuery}) async {
+  void fetchMenuItems({String? searchQuery, bool reload = false}) async {
     try {
       if(recipeModel.totalResults != null && recipeModel.totalResults == recipeModel.recipes?.length) {
         return;
@@ -74,6 +83,11 @@ class FoodLibController extends GetxController {
 
       );
       if (res.recipes != null) {
+        if (reload) {
+          recipeModel.recipes?.clear();
+          listOfRecipeItems.clear();
+          // searchTFCtrl.clear();
+        }
         recipeModel.recipes?.addAll(res.recipes ?? []);
         listOfRecipeItems.value = [...recipeModel.recipes ?? []];
       }
@@ -107,6 +121,19 @@ class FoodLibController extends GetxController {
       debugPrint(stackTrace.toString());
     } finally {
       showLoader(false);
+    }
+  }
+
+  Future<void> launchURL() async {
+    try {
+      final Uri url = Uri.parse('https://spoonacular.com/food-api/docs#Nutrition');
+      if (await canLaunchUrl(url)) {
+        await launchUrl(url);
+      } else {
+        throw 'Could not launch $url';
+      }
+    } catch (e) {
+      debugPrint(e.toString());
     }
   }
 

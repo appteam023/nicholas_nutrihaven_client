@@ -14,7 +14,7 @@ class DietCuisineSelectionView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetX<FoodLibController>(
+    return GetBuilder<FoodLibController>(
       init: FoodLibController(),
       initState: (_) {},
       builder: (controller) {
@@ -31,139 +31,84 @@ class DietCuisineSelectionView extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        buildStepperWidget(
-                          context, "\t\t\t\tSelect Diet","1", isSelected: controller.stepperCount.value == 1,
-                          onTap: () {
-                            controller.stepperCount.value = 1;
-                          }
-                        ),
-                        buildStepperWidget(context, "\t\t\t\tSelect Cuisine","2", isSelected: controller.stepperCount.value == 2),
-                      ],
-                    ),
-                    SizedBox(height: 10,),
                     Flexible(
-                      child: AnimatedCrossFade(
-                        duration: Duration(milliseconds: 800),
-                        crossFadeState: controller.stepperCount.value == 1 ?
-                          CrossFadeState.showFirst : CrossFadeState.showSecond,
-                        firstChild: SingleChildScrollView(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: DietData.dietList.map((element) {
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 10.0),
-                                child: InkWell(
-                                  onTap: () {
-                                    controller.stepperCount.value = 2;
-                                    controller.selectedDiet.value = element;
-                                  },
-                                  child: Stack(
-                                    fit: StackFit.loose,
-                                    alignment: Alignment.center,
-                                    children: [
-                                      Container(
-                                        height: 180.h,
-                                        width: MediaQuery.sizeOf(context).width,
-                                        clipBehavior: Clip.antiAlias,
-                                        decoration: BoxDecoration(
-                                          // color: primary,
-                                          borderRadius: BorderRadius.circular(8.r),
-                                        ),
-                                        child: Image.asset(
-                                          ImageConst.dietBg,
-                                          fit: BoxFit.fitWidth,
+                      child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: DietData.dietList.map((element) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 10.0),
+                              child: InkWell(
+                                onTap: () {
+                                  controller.selectedDiet.value = element;
+                                  // controller.selectedCuisine.value = element;
+                                  Get.toNamed(
+                                    AppRoutes.foodLibrary,
+                                  );
+                                },
+                                child: Stack(
+                                  fit: StackFit.loose,
+                                  alignment: Alignment.center,
+                                  children: [
+                                    Container(
+                                      height: 180.h,
+                                      width: MediaQuery.sizeOf(context).width,
+                                      clipBehavior: Clip.antiAlias,
+                                      decoration: BoxDecoration(
+                                        // color: primary,
+                                        borderRadius: BorderRadius.circular(8.r),
+                                      ),
+                                      child: Image.asset(
+                                        ImageConst.dietBg,
+                                        fit: BoxFit.fitWidth,
+                                      ),
+                                    ),
+                                    Container(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 20, vertical: 15.h
+                                      ),
+                                      height: 180.h,
+                                      width: MediaQuery.sizeOf(context).width,
+                                      decoration: BoxDecoration(
+                                        // color: primary,
+                                        borderRadius: BorderRadius.circular(10.r),
+                                        gradient: LinearGradient(
+                                          colors: [
+                                            Colors.black.withValues(alpha: 0.2),
+                                            Colors.black.withValues(alpha: 0.1),
+                                            // Colors.transparent,
+                                            Colors.black.withValues(alpha: 0.7),
+                                          ],
+                                          begin: Alignment.bottomCenter,
+                                          end: Alignment.topCenter,
                                         ),
                                       ),
-                                      Container(
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 20, vertical: 15.h
-                                        ),
-                                        height: 180.h,
-                                        width: MediaQuery.sizeOf(context).width,
-                                        decoration: BoxDecoration(
-                                          // color: primary,
-                                          borderRadius: BorderRadius.circular(10.r),
-                                          gradient: LinearGradient(
-                                            colors: [
-                                              Colors.black.withValues(alpha: 0.2),
-                                              Colors.black.withValues(alpha: 0.1),
-                                              // Colors.transparent,
-                                              Colors.black.withValues(alpha: 0.7),
-                                            ],
-                                            begin: Alignment.bottomCenter,
-                                            end: Alignment.topCenter,
-                                          ),
-                                        ),
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          mainAxisAlignment: MainAxisAlignment.end,
-                                          children: [
-                                            Flexible(
-                                              child: Text(
-                                                element.name,
-                                                style: context.headlineSmall,
-                                              ),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: [
+                                          Flexible(
+                                            child: Text(
+                                              element.name,
+                                              style: context.headlineSmall,
                                             ),
-                                            Flexible(
-                                              child: Text(
-                                                element.description,
-                                                style: context.titleSmall?.copyWith(fontFamily: 'Inter'),
-                                                maxLines: 4,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              );
-                            }).toList()
-                          ),
-                        ),
-                        secondChild: SingleChildScrollView(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: CuisineData.cuisineList.map((element) {
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 2),
-                                child: Card(
-                                  clipBehavior: Clip.antiAlias,
-                                  color: Colors.grey.shade50,
-                                  elevation: 4,
-                                  child: ListTile(
-                                    onTap: () {
-                                      controller.selectedCuisine.value = element;
-                                      Get.toNamed(
-                                        AppRoutes.foodLibrary,
-                                        // parameters: {
-                                        //   'id': element.id.toString(),
-                                        // }
-                                      );
-                                    },
-                                    leading: Text(element.flagIcon, style: TextStyle(fontSize: 24)),
-                                    title: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        Text(
-                                          element.name,
-                                          style: context.labelLarge?.copyWith(
-                                            color: black
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
+                                          Flexible(
+                                            child: Text(
+                                              element.description,
+                                              style: context.titleSmall?.copyWith(fontFamily: 'Inter'),
+                                              maxLines: 4,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  ],
                                 ),
-                              );
-                            }).toList()
-                          )
+                              ),
+                            );
+                          }).toList()
                         ),
                       ),
                     ),
