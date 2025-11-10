@@ -27,6 +27,7 @@ import 'package:nicholas_nutrihaven/Presentation/VideoLibrary/chest_&_triceps.da
 import 'package:nicholas_nutrihaven/Presentation/WorkOutVideos/workout_videos_screen.dart';
 import '../../Presentation/Auth/SignIn/signin.dart';
 import '../../Presentation/FoodLibrary/diet_cuisine_selection_view.dart';
+import '../../Presentation/FoodLibrary/nutrient_list_view.dart';
 import '../../Presentation/FoodLibrary/recipe_detailed_view.dart';
 import '../../Presentation/StartYourWorkout/AddRepSets/add_rep_sets_screen.dart';
 import '../../Presentation/StartYourWorkout/InstructionAndVideo/instruction_video_Screen.dart';

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import '../../Config/AppRoutes/routes_imports.dart';
 import '../../Helpers/app_extensions.dart';
 import '../../Utils/Const/asset_const.dart';
 import '../../Utils/Const/color_const.dart';
@@ -175,49 +176,75 @@ class RecipeDetailedView extends StatelessWidget {
                           ),
                         ),
                       ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 5,
-                        ),
-                        child: SingleChildScrollView(
+                      Obx(()=> SingleChildScrollView(
+                          padding: EdgeInsets.fromLTRB(
+                            6, 0, 6, 6
+                          ),
                           scrollDirection: Axis.horizontal,
                           child: Row(
                             children: [
                               mealCharacteristicsWidget(
                                 context, visible: (controller.foodItemDetails.value?.vegetarian ?? false),
-                                assetName: "1_vegetarian",
+                                assetName: "1_vegetarian", details: "Vegetarian",  detailsVisibility: controller.mealCharacteristicsDetails[0],
+                                onTap: () {
+                                  controller.mealCharacteristicsDetails[0] = !controller.mealCharacteristicsDetails[0];
+                                }
                               ),
                               mealCharacteristicsWidget(
                                 context, visible: (controller.foodItemDetails.value?.vegan ?? false),
-                                assetName: "2_vegan",
+                                assetName: "2_vegan", details: "Vegan",  detailsVisibility: controller.mealCharacteristicsDetails[1],
+                                onTap: () {
+                                  controller.mealCharacteristicsDetails[1] = !controller.mealCharacteristicsDetails[1];
+                                }
                               ),
                               mealCharacteristicsWidget(
                                 context, visible: (controller.foodItemDetails.value?.glutenFree ?? false),
-                                assetName: "3_gluten_free",
+                                assetName: "3_gluten_free", details: "Gluten Free",  detailsVisibility: controller.mealCharacteristicsDetails[2],
+                                onTap: () {
+                                  controller.mealCharacteristicsDetails[2] = !controller.mealCharacteristicsDetails[2];
+                                }
                               ),
                               mealCharacteristicsWidget(
                                 context, visible: (controller.foodItemDetails.value?.dairyFree ?? false),
-                                assetName: "4_dairy_free",
+                                assetName: "4_dairy_free", details: "Dairy Free",  detailsVisibility: controller.mealCharacteristicsDetails[3],
+                                onTap: () {
+                                  controller.mealCharacteristicsDetails[3] = !controller.mealCharacteristicsDetails[3];
+                                }
                               ),
                               mealCharacteristicsWidget(
                                 context, visible: (controller.foodItemDetails.value?.veryHealthy ?? false),
-                                assetName: "5_very_healthy",
+                                assetName: "5_very_healthy", details: "Very Healthy",  detailsVisibility: controller.mealCharacteristicsDetails[4],
+                                onTap: () {
+                                  controller.mealCharacteristicsDetails[4] = !controller.mealCharacteristicsDetails[4];
+                                }
                               ),
                               mealCharacteristicsWidget(
                                 context, visible: (controller.foodItemDetails.value?.cheap ?? false),
-                                assetName: "6_cheap",
+                                assetName: "6_cheap", details: "Cheap",  detailsVisibility: controller.mealCharacteristicsDetails[5],
+                                onTap: () {
+                                  controller.mealCharacteristicsDetails[5] = !controller.mealCharacteristicsDetails[5];
+                                }
                               ),
                               mealCharacteristicsWidget(
                                 context, visible: (controller.foodItemDetails.value?.veryPopular ?? false),
-                                assetName: "7_very_popular",
+                                assetName: "7_very_popular", details: "Very Popular",  detailsVisibility: controller.mealCharacteristicsDetails[6],
+                                onTap: () {
+                                  controller.mealCharacteristicsDetails[6] = !controller.mealCharacteristicsDetails[6];
+                                }
                               ),
                               mealCharacteristicsWidget(
                                 context, visible: (controller.foodItemDetails.value?.sustainable ?? false),
-                                assetName: "8_sustainable",
+                                assetName: "8_sustainable", details: "Sustainable",  detailsVisibility: controller.mealCharacteristicsDetails[7],
+                                onTap: () {
+                                  controller.mealCharacteristicsDetails[7] = !controller.mealCharacteristicsDetails[7];
+                                }
                               ),
                               mealCharacteristicsWidget(
                                 context, visible: (controller.foodItemDetails.value?.lowFodmap ?? false),
-                                assetName: "9_lowfodmap",
+                                assetName: "9_lowfodmap", details: "Low-FODMAP",  detailsVisibility: controller.mealCharacteristicsDetails[8],
+                                onTap: () {
+                                  controller.mealCharacteristicsDetails[8] = !controller.mealCharacteristicsDetails[8];
+                                }
                               ),
                             ],
                           ),
@@ -290,7 +317,7 @@ class RecipeDetailedView extends StatelessWidget {
                       Center(
                         child: TextButton(
                           onPressed: () {
-                            controller.launchURL();
+                            Get.toNamed(AppRoutes.dietNutrientsDetail);
                           },
                           child: Text(
                             "View Detailed Nutrition",
@@ -466,22 +493,56 @@ class RecipeDetailedView extends StatelessWidget {
   }
 
   Visibility mealCharacteristicsWidget(BuildContext context, {
-    bool visible = false, String? assetName
+    bool visible = false, String? assetName, required String details,
+    required bool detailsVisibility, required VoidCallback onTap
   }) {
     return Visibility(
       visible: visible && assetName.isNotNullNotEmpty,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-        child: CircleAvatar(
-          minRadius: 28,
-          backgroundColor: Color(0xFFEFF0F4),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Image.asset(
-              "assets/images/food_lib/characteristics/$assetName.png",
-              width: 30,
-              height: 30,
-            ),
+      child: GestureDetector(
+        onTapDown: (TapDownDetails details) {
+          onTap();
+        },
+        child: AnimatedSwitcher(
+          duration: Duration(milliseconds: 800),
+          transitionBuilder: (Widget child, Animation<double> animation) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (detailsVisibility)
+                Padding(
+                  key: ValueKey(details),
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Text(
+                    details,
+                    style: context.bodyMedium?.copyWith(
+                      color: black,
+                      fontSize: 14
+                    ),
+                  ),
+                )
+              else SizedBox(
+                key: ValueKey("${details}hidden"),
+                height: 24, //width: 40,
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                child: CircleAvatar(
+                  minRadius: 28,
+                  backgroundColor: Color(0xFFEFF0F4),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Image.asset(
+                      "assets/images/food_lib/characteristics/$assetName.png",
+                      width: 30,
+                      height: 30,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       )

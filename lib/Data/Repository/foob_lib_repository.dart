@@ -26,7 +26,7 @@ class FoodLibRepository {
           "diet": diet,
           if (cuisine != null && cuisine != "null") "cuisine": cuisine,
           "sort": "popularity",
-          "instructionsRequired": true,
+          "instructionRequired": true,
           "addRecipeInformation": true,
         }
       );
@@ -45,7 +45,7 @@ class FoodLibRepository {
         queryParameter: {
           "apiKey": ApiConstants.foodLibAPIKey,
           "includeNutrition": true,
-          "instructionsRequired": true,
+          "instructionRequired": true,
           "addRecipeInformation": true,
         }
       );

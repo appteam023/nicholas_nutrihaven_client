@@ -46,6 +46,8 @@ class FoodLibController extends GetxController {
     "cholesterol": "assets/images/food_lib/nutrients/7_cholesterol.png",
   };
 
+  RxList<bool> mealCharacteristicsDetails = [false, false, false, false, false,
+    false, false, false, false].obs;
 
 
 

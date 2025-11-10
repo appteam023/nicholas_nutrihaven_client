@@ -31,6 +31,7 @@ class AppRoutes {
   static String dietCuisineSelectionView = '/dietCuisineSelectionView';
   static String dietList = '/dietList';
   static String dietDetail = '/dietDetail';
+  static String dietNutrientsDetail = '/dietNutrientsDetail';
   static String addNewMuscle = '/addNewMuscle';
   static String addRepSet = '/addRepSet';
   static String instructionVideo = '/instructionVideo';
@@ -139,6 +140,10 @@ class AppRoutes {
     GetPage(
       name: dietDetail,
       page: () => const RecipeDetailedView()
+    ),
+    GetPage(
+      name: dietNutrientsDetail,
+      page: () => const NutrientListView()
     ),
     GetPage(
       name: addNewMuscle,
