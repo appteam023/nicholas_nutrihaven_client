@@ -502,6 +502,9 @@ class RecipeDetailedView extends StatelessWidget {
         onTapDown: (TapDownDetails details) {
           onTap();
         },
+        onTapUp: (TapUpDetails details) {
+          onTap();
+        },
         child: AnimatedSwitcher(
           duration: Duration(milliseconds: 800),
           transitionBuilder: (Widget child, Animation<double> animation) {
@@ -509,7 +512,7 @@ class RecipeDetailedView extends StatelessWidget {
           },
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               if (detailsVisibility)
                 Padding(
