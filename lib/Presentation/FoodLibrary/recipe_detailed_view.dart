@@ -137,10 +137,12 @@ class RecipeDetailedView extends StatelessWidget {
                               ),
                             ),
                             Spacer(),
-                            Image.asset(
-                              "assets/images/food_lib/gif/score_animated_icon.gif",
-                              width: 48,
-                              height: 48,
+                            RepaintBoundary(
+                              child: Image.asset(
+                                "assets/images/food_lib/gif/score_animated_icon.gif",
+                                width: 48,
+                                height: 48,
+                              ),
                             ),
                             Text(
                               "${controller.foodItemDetails.value?.spoonacularScore?.toStringAsFixed(2) ?? 0}",

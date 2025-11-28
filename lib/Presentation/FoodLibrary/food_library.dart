@@ -52,6 +52,15 @@ class FoodLibrary extends StatelessWidget {
                     selectedValue: controller.selectedCuisine.value,
                     dropdownItems: CuisineData.cuisineList,
                     buttonHeight: 22,
+                    suffixIcon: controller.selectedCuisine.value != null ? IconButton(
+                      onPressed: () {
+                        controller.selectedCuisine.value = null;
+                        controller.fetchMenuItems(reload: true, searchQuery: controller.searchTFCtrl.text);
+                      },
+                      icon: Icon(
+                        Icons.close,
+                      ),
+                    ) : null,
                     onChanged: (value) {
                       if (controller.selectedCuisine.value == value) {
                         controller.selectedCuisine.value = null;

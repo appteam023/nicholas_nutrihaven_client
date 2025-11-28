@@ -24,6 +24,7 @@ class CustomDropdownButton<T> extends StatefulWidget {
     this.buttonElevation,
     this.icon,
     this.prefixIcon,
+    this.suffixIcon,
     this.iconSize,
     this.iconEnabledColor = Colors.grey,
     this.iconDisabledColor,
@@ -57,6 +58,7 @@ class CustomDropdownButton<T> extends StatefulWidget {
   final int? buttonElevation;
   final Widget? icon;
   final Widget? prefixIcon;
+  final Widget? suffixIcon;
   final double? iconSize;
   final Color? iconEnabledColor;
   final Color? iconDisabledColor;
@@ -118,6 +120,7 @@ class _CustomDropdownButton2State<T> extends State<CustomDropdownButton<T>> {
               color: grey
             )
           ),
+          suffixIcon: widget.suffixIcon
         ),
         value: widget.selectedValue,
         items: widget.dropdownItems.map((T e) => DropdownMenuItem<T>(
@@ -154,11 +157,13 @@ class _CustomDropdownButton2State<T> extends State<CustomDropdownButton<T>> {
             ),
           elevation: widget.buttonElevation,
         ),
-        iconStyleData: IconStyleData(
+        iconStyleData: widget.suffixIcon == null ? IconStyleData(
           icon: widget.icon ?? const Icon(Icons.keyboard_arrow_down,),
           iconSize: widget.iconSize ?? 24,
           iconEnabledColor: widget.iconEnabledColor,
           iconDisabledColor: widget.iconDisabledColor,
+        ) : IconStyleData(
+          icon: const SizedBox()
         ),
         dropdownStyleData: DropdownStyleData(
           //Max height for the dropdown menu & becoming scrollable if there are more items. If you pass Null it will take max height possible for the items.
