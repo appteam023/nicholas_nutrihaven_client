@@ -8,7 +8,7 @@ import 'package:nicholas_nutrihaven/Data/Model/muscleModel/get_muscle_model.dart
 import 'package:nicholas_nutrihaven/Data/response/status.dart';
 import 'package:nicholas_nutrihaven/Presentation/StartYourWorkout/WorkoutPlanScreen/widgets/muscle_card_widget.dart';
 import 'package:nicholas_nutrihaven/Presentation/StartYourWorkout/WorkoutPlanScreen/widgets/options_bottom_sheet.dart';
-import 'package:nicholas_nutrihaven/Presentation/StartYourWorkout/controller/workout_controller.dart';
+import 'package:nicholas_nutrihaven/Presentation/StartYourWorkout/controller/workout_plan_controller.dart';
 import 'package:nicholas_nutrihaven/Utils/Const/asset_const.dart';
 import 'package:nicholas_nutrihaven/Utils/Const/color_const.dart';
 import 'package:nicholas_nutrihaven/Utils/Extensions/text_extension.dart';
@@ -17,6 +17,8 @@ import 'package:nicholas_nutrihaven/Widgets/custom_button.dart';
 import 'package:nicholas_nutrihaven/Widgets/dropdown_widget.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
+import '../../../Widgets/loader_widget.dart';
+import '../group_details_view/group_details_view.dart';
 import 'workout_controller.dart';
 
 class WorkoutPlan extends StatefulWidget {
@@ -27,9 +29,9 @@ class WorkoutPlan extends StatefulWidget {
 }
 
 class _WorkoutPlanState extends State<WorkoutPlan> {
-  final int _selectedTabIndex = 0;
+  final int selectedTabIndex = 0;
   bool _isStartTimer = false;
-  final WorkoutController _controller = Get.put(WorkoutController());
+  final WorkoutPlanController _controller = Get.put(WorkoutPlanController());
 
   final List<List<String>> _tabTitles = [
     ['1hr', '2hr', '3hr'],
@@ -96,51 +98,210 @@ class _WorkoutPlanState extends State<WorkoutPlan> {
     },
   ];
 
-  final List<Datum> _fakeMuscles = List.generate(
+  final List<Muscle> _fakeMuscles = List.generate(
     5,
-    (index) => Datum(
-      muscleId: index,
-      muscleName: 'Muscle $index',
+    (index) => Muscle(
+      id: index,
+      name: 'Muscle $index',
       muscleImage: ImageConst.bicep,
     ),
   );
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: secondary,
-      appBar: _buildAppBar(),
-      body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-          child: CustomScrollView(
-            slivers: [
-              if (_isStartTimer)
-                _buildTimerSection()
-              else
-                _buildFilterAndMusclesSection(),
-              _buildExercisesSection(),
-              _buildExerciseList(),
-            ],
+    return GetX<WorkoutPlanController>(
+      init: WorkoutPlanController(),
+      builder: (controller) {
+        return CustomLoader(
+          isLoading: controller.isLoading.value,
+          child: Scaffold(
+            backgroundColor: secondary,
+            appBar: _buildAppBar(),
+            body: SafeArea(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                child: NotificationListener<ScrollUpdateNotification>(
+                  onNotification: (ScrollNotification scrollInfo) {
+                    if (scrollInfo is ScrollUpdateNotification) {
+                      if (scrollInfo.metrics.axis == Axis.vertical) { //
+                        if (scrollInfo.metrics.atEdge) {
+                          if (scrollInfo.metrics.pixels == 0) {
+                            debugPrint("At the top");
+                          } else {
+                            debugPrint("At the bottom");
+                            controller.fetchGroups();
+                          }
+                        }
+                      }
+                    }
+                    return true;
+                  },
+                  child: RefreshIndicator(
+                    onRefresh: () async {
+                      await Future.delayed(Duration(seconds: 2));
+                      return await Future.value();
+                    },
+                    child: CustomScrollView(
+                      slivers: [
+                        if (_isStartTimer)
+                          _buildTimerSection()
+                        else
+                          _buildFilterAndMusclesSection(),
+                        SliverFillRemaining(
+                          child: controller.groupData.value != null && controller.groupData.value!.groups!.isNotEmpty ?
+                          ListView.builder(
+                            padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                            itemCount: controller.groupData.value!.groups!.length,
+                            itemBuilder: (context, index) {
+                              var element = controller.groupData.value!.groups![index];
+                              return Slidable(
+                                endActionPane: ActionPane(
+                                  extentRatio: 0.3,
+                                  motion: const ScrollMotion(),
+                                  children: [
+                                    SlidableAction(
+                                      onPressed: (ctx) {
+                                        controller.deleteGroup(context, groupID: element.id);
+                                      },
+                                      icon: CupertinoIcons.delete,
+                                      label: 'Delete',
+                                      foregroundColor: Colors.white,
+                                      backgroundColor: Colors.pinkAccent,
+                                      spacing: 5,
+                                    ),
+                                  ],
+                                ),
+                                child: InkWell(
+                                  onTap: () {
+                                    controller.getGroupDetails(groupID: element.id);
+                                  },
+                                  child: Padding(
+                                    padding: EdgeInsets.only(bottom: 30.h),
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        Stack(
+                                          children: [
+                                            Image.asset(
+                                              ImageConst.signIn2,
+                                              width: 70.w,
+                                              height: 100.h,
+                                              fit: BoxFit.contain,
+                                            ),
+                                            Positioned(
+                                              bottom: -10.h,
+                                              right: -10.w,
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  borderRadius: BorderRadius.circular(10.r),
+                                                  color: primary,
+                                                ),
+                                                child: Image.asset(
+                                                  ImageConst.bicep,
+                                                  height: 40.h,
+                                                  width: 40.h,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(width: 20.w),
+                                        Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              "${element.title}",
+                                              style: context.titleMedium!.copyWith(color: primary),
+                                            ),
+                                            Text(
+                                              "No of exercises: ${element.groupExercisesCount}",
+                                              style: context.bodySmall!.copyWith(color: grey),
+                                            ),
+                                          ],
+                                        ),
+                                        const Spacer(),
+                                        IconButton(
+                                            onPressed: () {
+                                              showModalBottomSheet<void>(
+                                                context: context,
+                                                sheetAnimationStyle: AnimationStyle(
+                                                  duration: const Duration(milliseconds: 500),
+                                                  reverseDuration: const Duration(milliseconds: 300),
+                                                ),
+                                                builder: (BuildContext context) {
+                                                  return CustomOptionsBottomSheet(
+                                                    options: [
+                                                      CustomOptionsBottomSheet.buildBottomSheetItem(
+                                                        Icons.edit, "Edit Group",
+                                                        onTap: () {
+                                                          Get.back();
+                                                          controller.editGroup(
+                                                            context,
+                                                            groupID: controller.groupDetails.value?.id,
+                                                            groupName: controller.groupDetails.value?.title,
+                                                            selectedExercises: controller.groupDetails.value?.groupExercises?.map(
+                                                                (element) => element.masterExerciseId!).toList() ?? []
+                                                          );
+                                                        }
+                                                      ),
+                                                    ]
+                                                  );
+                                                },
+                                              );
+                                            },
+                                            icon: Icon(Icons.more_vert)
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }
+                          ) : Center(
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 30.0),
+                              child: Text(
+                                'No Exercise Group Found',
+                                style: context.bodyLarge?.copyWith(
+                                  fontSize: 18
+                                ),
+                              ),
+                            ),
+                          ),
+                        )
+                        // _buildExercisesSection(),
+                        // _buildExerciseList(),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+            floatingActionButton: CustomButton(
+              margin: EdgeInsets.symmetric(horizontal: horizontalPadding),
+              title: "Create new workout group",
+              onTap: () {
+                Get.toNamed(AppRoutes.selectMuscle);
+              },
+            ),
           ),
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: _isStartTimer ? null : _buildStartWorkoutButton(),
+        );
+      }
     );
   }
 
   CustomAppBar _buildAppBar() {
     return CustomAppBar(
       title: 'Your Workout Plan',
-      actionImage: InkWell(
-        onTap: () => _showBottomSheet(context),
-        child: const Icon(
-          Icons.more_vert_outlined,
-          color: Colors.white,
-        ),
-      ),
-      actionImageBG: secondary.withValues(alpha: 0.1),
+      // actionImage: InkWell(
+      //   onTap: () => _showBottomSheet(context),
+      //   child: const Icon(
+      //     Icons.more_vert_outlined,
+      //     color: Colors.white,
+      //   ),
+      // ),
+      // actionImageBG: secondary.withValues(alpha: 0.1),
     );
   }
 
@@ -235,9 +396,9 @@ class _WorkoutPlanState extends State<WorkoutPlan> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(height: 20.h),
-          _buildFilterTabs(),
-          _buildMusclesHeader(),
-          _buildMusclesList(),
+          // _buildFilterTabs(),
+          // _buildMusclesHeader(),
+          // _buildMusclesList(),
         ],
       ),
     );
@@ -299,7 +460,7 @@ class _WorkoutPlanState extends State<WorkoutPlan> {
             ),
           );
         case Status.COMPLETED:
-          final muscles = response.response?.data ?? [];
+          final muscles = response.response?.data?.muscles ?? [];
           return SizedBox(
             height: 90.h,
             child: ListView.separated(
@@ -321,9 +482,9 @@ class _WorkoutPlanState extends State<WorkoutPlan> {
     });
   }
 
-  Widget _buildMuscleCard(int index, Datum muscle) {
+  Widget _buildMuscleCard(int index, Muscle muscle) {
     return MuscleCardWidget(
-      muscleName: muscle.muscleName ?? 'Unknown',
+      muscleName: muscle.name ?? 'Unknown',
       imageUrl: muscle.muscleImage ?? ImageConst.bicep,
     );
   }

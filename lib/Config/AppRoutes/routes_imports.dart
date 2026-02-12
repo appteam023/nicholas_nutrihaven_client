@@ -1,3 +1,4 @@
+import 'package:get/get.dart';
 import 'package:get/get_navigation/src/routes/get_route.dart';
 import 'package:get/get_navigation/src/routes/transitions_type.dart';
 import 'package:nicholas_nutrihaven/Presentation/Auth/SignUp/SignUpInfo/age_selector_widget.dart';
@@ -31,6 +32,10 @@ import '../../Presentation/FoodLibrary/nutrient_list_view.dart';
 import '../../Presentation/FoodLibrary/recipe_detailed_view.dart';
 import '../../Presentation/StartYourWorkout/AddRepSets/add_rep_sets_screen.dart';
 import '../../Presentation/StartYourWorkout/InstructionAndVideo/instruction_video_Screen.dart';
+import '../../Presentation/StartYourWorkout/group_create_edit/select_exercise_view.dart';
+import '../../Presentation/StartYourWorkout/group_create_edit/select_muscle_view.dart';
+import '../../Presentation/StartYourWorkout/group_details_view/group_details_view.dart';
+import '../../Presentation/StartYourWorkout/group_details_view/workout_logs_view.dart';
 import '../../Presentation/TrackYourMeal/Meals/breakfast_meals.dart';
 import '../../Presentation/TrackYourMeal/meal_tracker.dart';
 import '../../Presentation/VideoLibrary/chest_workout_videos.dart';

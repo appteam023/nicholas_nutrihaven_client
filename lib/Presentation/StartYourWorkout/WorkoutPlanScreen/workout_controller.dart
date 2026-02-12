@@ -4,24 +4,29 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
+import '../../../Data/Repository/workout_repository.dart';
 import '../../../Data/Repository/workout_videos_repository.dart';
-import '../../../Widgets/custom_snackbar.dart';
-import '../../../Widgets/loader_widget.dart';
+import '../controller/workout_plan_controller.dart';
 
 
 
 
 class WorkOutController extends GetxController {
   final WorkoutVideosRepository workoutVideosRepository = WorkoutVideosRepository();
+  final WorkOutRepository workOutRepository = WorkOutRepository();
 
   Timer? timer;
   int secondsElapsed = 0;
   bool isRunning = false;
+  DateTime? startTime;
 
   void startTimer() {
     if (isRunning) return;
+    logStartWorkoutTime();
     isRunning = true;
+    startTime ??= DateTime.now();
     timer = Timer.periodic(Duration(seconds: 1), (timer) {
       secondsElapsed++;
       update();
@@ -36,16 +41,17 @@ class WorkOutController extends GetxController {
 
   void resetTimer() async {
     pauseTimer();
-    bool res = await saveWorkoutTime();
-    if (res) {
-      ScaffoldMessenger.of(Get.context!).showSnackBar(
-        CustomSnackBar(
-          message: "Success 👏, Workout Time saved",
-        ),
-      );
-    } else {
-      debugPrint("error");
-    }
+    startTime = null;
+    // bool res = await logEndWorkoutTime();
+    // if (res) {
+    //   ScaffoldMessenger.of(Get.context!).showSnackBar(
+    //     CustomSnackBar(
+    //       message: "Success 👏, Workout Time saved",
+    //     ),
+    //   );
+    // } else {
+    //   debugPrint("error");
+    // }
     update();
     secondsElapsed = 0;
   }
@@ -69,18 +75,23 @@ class WorkOutController extends GetxController {
 
   @override
   void onClose() {
+    secondsElapsed = 0;
+    startTime = null;
     timer?.cancel();
     super.onClose();
   }
 
 
 
-  Future<bool> saveWorkoutTime() async {
-    if (secondsElapsed == 0) return false;
+  Future<bool> logStartWorkoutTime() async {
     try {
-      showLoader(true);
-      var res = await workoutVideosRepository.postWorkoutTime(
-        secondsElapsed.toString()
+      var res = await workOutRepository.logWorkoutTime(
+        data: {
+          "group_exercise_id": Get.find<WorkoutPlanController>().workoutExercise?.id,
+          "start_time": DateFormat("HH:mm:ss").format(DateTime.now().toUtc()),
+          "log_date": formatDateTimeToString(DateTime.now(), format: "yyyy/MM/dd")
+        },
+        start: true,
       );
       if(res != null ) {
         return true;
@@ -91,9 +102,48 @@ class WorkOutController extends GetxController {
         print(stackTrace.toString());
       }
     } finally {
-      showLoader(false);
+
     }
     return false;
+  }
+
+  Future<bool> logEndWorkoutTime() async {
+
+    if (secondsElapsed == 0) return false;
+    if (Get.find<WorkoutPlanController>().isStartTimer.value == false) return false;
+    try {
+      var res = await workOutRepository.logWorkoutTime(
+        data: {
+          "group_exercise_id": Get.find<WorkoutPlanController>().workoutExercise?.id,
+          "end_time": DateFormat("HH:mm:ss").format(DateTime.now().toUtc()),
+        },
+        start: false
+      );
+      if(res != null ) {
+        return true;
+      }
+    } catch (error, stackTrace) {
+      if (kDebugMode) {
+        print(error.toString());
+        print(stackTrace.toString());
+      }
+    } finally {
+
+    }
+    return false;
+  }
+
+  String? formatDateTimeToString(DateTime? datetime, {String format = 'dd-MM-yyyy'}) {
+    if (datetime == null) {
+      return null;
+    }
+    try {
+      return DateFormat(format).format(datetime);
+    } catch (e, stackTrace) {
+      debugPrint(e.toString());
+      debugPrint(stackTrace.toString());
+      return null;
+    }
   }
 
 }

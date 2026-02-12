@@ -1,14 +1,14 @@
-class MuscleModel {
+class GroupModel {
   bool? status;
   String? message;
-  MuscleData? data;
+  GroupData? data;
 
-  MuscleModel({this.status, this.message, this.data});
+  GroupModel({this.status, this.message, this.data});
 
-  MuscleModel.fromJson(Map<String, dynamic> json) {
+  GroupModel.fromJson(Map<String, dynamic> json) {
     status = json['status'];
     message = json['message'];
-    data = json['data'] != null ? MuscleData.fromJson(json['data']) : null;
+    data = json['data'] != null ? GroupData.fromJson(json['data']) : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -22,18 +22,18 @@ class MuscleModel {
   }
 }
 
-class MuscleData {
+class GroupData {
   int? currentPage;
-  List<Muscle>? muscles;
+  List<Group>? groups;
   int? from;
   int? lastPage;
   int? perPage;
   int? to;
   int? total;
 
-  MuscleData({
+  GroupData({
     this.currentPage,
-    this.muscles,
+    this.groups,
     this.from,
     this.lastPage,
     this.perPage,
@@ -41,12 +41,12 @@ class MuscleData {
     this.total,
   });
 
-  MuscleData.fromJson(Map<String, dynamic> json) {
+  GroupData.fromJson(Map<String, dynamic> json) {
     currentPage = json['current_page'];
     if (json['data'] != null) {
-      muscles = <Muscle>[];
+      groups = <Group>[];
       json['data'].forEach((v) {
-        muscles!.add(Muscle.fromJson(v));
+        groups!.add(Group.fromJson(v));
       });
     }
     from = json['from'];
@@ -59,8 +59,8 @@ class MuscleData {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['current_page'] = currentPage;
-    if (muscles != null) {
-      data['data'] = muscles!.map((v) => v.toJson()).toList();
+    if (groups != null) {
+      data['data'] = groups!.map((v) => v.toJson()).toList();
     }
     data['from'] = from;
     data['last_page'] = lastPage;
@@ -71,30 +71,44 @@ class MuscleData {
   }
 }
 
-class Muscle {
+class Group {
   int? id;
-  String? name;
-  String? muscleImage;
+  int? memberId;
+  String? title;
+  bool? isActive;
   String? createdAt;
   String? updatedAt;
+  int? groupExercisesCount;
 
-  Muscle({this.id, this.name, this.muscleImage, this.createdAt, this.updatedAt});
+  Group({
+    this.id,
+    this.memberId,
+    this.title,
+    this.isActive,
+    this.createdAt,
+    this.updatedAt,
+    this.groupExercisesCount,
+  });
 
-  Muscle.fromJson(Map<String, dynamic> json) {
+  Group.fromJson(Map<String, dynamic> json) {
     id = json['id'];
-    name = json['name'];
-    muscleImage = json['muscle_image'];
+    memberId = json['member_id'];
+    title = json['title'];
+    isActive = json['is_active'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
+    groupExercisesCount = json['group_exercises_count'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
-    data['name'] = name;
-    data['muscle_image'] = muscleImage;
+    data['member_id'] = memberId;
+    data['title'] = title;
+    data['is_active'] = isActive;
     data['created_at'] = createdAt;
     data['updated_at'] = updatedAt;
+    data['group_exercises_count'] = groupExercisesCount;
     return data;
   }
 }

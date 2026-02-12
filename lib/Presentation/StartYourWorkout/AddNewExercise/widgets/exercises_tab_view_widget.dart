@@ -12,13 +12,12 @@ class ExercisesTabView extends StatelessWidget {
     super.key,
   });
 
-  final List<Datum> _fakeExercises = List.generate(
+  final List<Exercise> _fakeExercises = List.generate(
     3,
-    (index) => Datum(
-      nutrihavenExerciseId: index,
-      nutrihavenExerciseName: 'Exercise $index',
-      nutrihavenExerciseInstructions: 'Instructions for Exercise $index',
-      nutrihavenExerciseVideoUrl: '',
+    (index) => Exercise(
+      id: index,
+      name: 'Exercise $index',
+      exerciseImage: '',
     ),
   );
 
@@ -39,22 +38,22 @@ class ExercisesTabView extends StatelessWidget {
               itemBuilder: (context, index) {
                 final exercise = _fakeExercises[index];
                 return ExerciseListItemWidget(
-                  name: exercise.nutrihavenExerciseName ?? 'Unnamed Exercise',
-                  exerciseId: exercise.nutrihavenExerciseId ?? 0,
+                  name: exercise.name ?? 'Unnamed Exercise',
+                  exerciseId: exercise.id ?? 0,
                 );
               },
             ),
           );
         case Status.COMPLETED:
-          final exercises = response.response?.data ?? [];
+          final exercises = response.response?.data?.exercises ?? [];
           return ListView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: exercises.length,
             itemBuilder: (context, index) {
               final exercise = exercises[index];
               return ExerciseListItemWidget(
-                name: exercise.nutrihavenExerciseName ?? 'Unnamed Exercise',
-                exerciseId: exercise.nutrihavenExerciseId ?? 0,
+                name: exercise.name ?? 'Unnamed Exercise',
+                exerciseId: exercise.id ?? 0,
               );
             },
           );

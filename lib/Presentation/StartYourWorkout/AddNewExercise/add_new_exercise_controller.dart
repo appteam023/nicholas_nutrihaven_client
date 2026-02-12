@@ -6,7 +6,7 @@ import 'package:nicholas_nutrihaven/Data/Model/ExcerciseModel/get_exercise_model
 import 'package:nicholas_nutrihaven/Data/Model/ExcerciseModel/post_exercise_model.dart';
 import 'package:nicholas_nutrihaven/Data/Model/muscleModel/get_muscle_model.dart';
 import 'package:nicholas_nutrihaven/Data/Repository/exercise_repository.dart';
-import 'package:nicholas_nutrihaven/Data/Repository/muscle_repository.dart';
+import 'package:nicholas_nutrihaven/Data/Repository/workout_repository.dart';
 import 'package:nicholas_nutrihaven/Data/Response/api_response.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:nicholas_nutrihaven/Helpers/custom_loading_dialog.dart';
@@ -15,12 +15,12 @@ import 'package:nicholas_nutrihaven/Utils/Const/color_const.dart';
 
 class AddNewExerciseController extends GetxController {
   final ExerciseRepository _exerciseRepository = ExerciseRepository();
-  final Rx<ApiResponse<GetExerciseModel>> getExerciseResponse =
-      ApiResponse<GetExerciseModel>.initial().obs;
+  final Rx<ApiResponse<ExerciseModel>> getExerciseResponse =
+      ApiResponse<ExerciseModel>.initial().obs;
 
-  final MuscleRepository _muscleRepository = MuscleRepository();
-  final Rx<ApiResponse<GetMuscleModel>> getMuscleResponse =
-      ApiResponse<GetMuscleModel>.initial().obs;
+  final WorkOutRepository workOutRepository = WorkOutRepository();
+  final Rx<ApiResponse<MuscleModel>> getMuscleResponse =
+      ApiResponse<MuscleModel>.initial().obs;
 
   final Rx<ApiResponse<PostExerciseModel>> getPostResponse =
       ApiResponse<PostExerciseModel>.initial().obs;
@@ -57,7 +57,7 @@ class AddNewExerciseController extends GetxController {
   Future<void> fetchMuscles() async {
     try {
       getMuscleResponse.value = ApiResponse.loading();
-      final response = await _muscleRepository.getMuscle();
+      final response = await workOutRepository.getMuscle();
       getMuscleResponse.value = ApiResponse.completed(response);
     } catch (e) {
       getMuscleResponse.value = ApiResponse.error(e.toString());

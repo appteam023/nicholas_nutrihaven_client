@@ -22,8 +22,18 @@ class ApiEndPointUrls {
 
   static const addPreference = "user/addpreferences";
 
-  //Muscle
-  static const muscle = "muscle";
+  //Workout
+  static const groupList = "exercise-groups/list";
+  static const groupDetails = "exercise-groups";
+  static const groupCreate = "exercise-groups/create";
+  static const groupUpdate = "exercise-groups/update";
+  static const groupDelete = "exercise-groups/delete";
+  static const groupDeleteExercise = "exercise-groups/remove-exercise";
+  static const muscleList = "muscle-group";
+  static const exerciseListByMuscle = "master-exercise";
+  static const workoutLogStart = "exercise-logs/start";
+  static const workoutLogEnd = "exercise-logs/end";
+  static const workoutLogList = "exercise-logs";
 
   //Exercise
   static const getExercise = "nutriheaven-exercise";

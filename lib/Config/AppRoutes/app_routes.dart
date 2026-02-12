@@ -38,6 +38,10 @@ class AppRoutes {
   static String notification = '/notification';
   static String addNewExercise = '/addNewExercise';
   static String addTag = '/addTag';
+  static String selectMuscle = "/selectMuscle";
+  static String selectExercise = "/selectExercise";
+  static String groupDetail = "/workoutGroupDetails";
+  static String workoutLogs = "/workoutLogs";
 
   static List<GetPage<dynamic>> routes = [
     GetPage(
@@ -192,6 +196,27 @@ class AppRoutes {
       page: () => TagVideoScreen(),
       transition: Transition.cupertino,
       transitionDuration: const Duration(milliseconds: 500),
+    ),
+    GetPage(
+      name: selectMuscle,
+      page: () => const SelectMuscleView(),
+    ),
+    GetPage(
+      name: selectExercise,
+      page: () {
+        final args = Get.arguments as Map<String,dynamic>?;
+        return SelectExerciseView(
+          isEditing: args?["isEditing"] ?? false,
+        );
+      }
+    ),
+    GetPage(
+      name: groupDetail,
+      page: () => const GroupDetailsView(),
+    ),
+    GetPage(
+      name: workoutLogs,
+      page: () => const WorkoutLogsView(),
     ),
   ];
 }

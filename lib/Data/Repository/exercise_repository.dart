@@ -9,14 +9,14 @@ import '../DataSources/remote/api_endpoints.dart';
 class ExerciseRepository {
   final NetworkApiService _networkApiService = NetworkApiService();
 
-  Future<GetExerciseModel> getExercise() async {
+  Future<ExerciseModel> getExercise() async {
     try {
       dynamic response = await _networkApiService.GetResponse(
         url: ApiEndPointUrls.getExercise,
         isTokenRequired: true,
       );
       log(response.toString());
-      return GetExerciseModel.fromJson(response);
+      return ExerciseModel.fromJson(response);
     } catch (e) {
       rethrow;
     }

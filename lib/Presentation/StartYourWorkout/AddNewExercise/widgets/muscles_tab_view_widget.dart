@@ -1,23 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:nicholas_nutrihaven/Data/Model/MuscleModel/get_muscle_model.dart';
-import 'package:nicholas_nutrihaven/Data/response/status.dart';
-
-import 'package:nicholas_nutrihaven/Presentation/StartYourWorkout/AddNewExercise/add_new_exercise_controller.dart';
-import 'package:nicholas_nutrihaven/Presentation/StartYourWorkout/AddNewExercise/widgets/muscle_list_item_widget.dart';
-import 'package:nicholas_nutrihaven/Utils/Const/asset_const.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+
+import '../../../../Utils/Const/asset_const.dart';
+import '../../../../Data/response/status.dart';
+import '../add_new_exercise_controller.dart';
+import 'muscle_list_item_widget.dart';
+
+import '../../../../Data/Model/muscleModel/get_muscle_model.dart';
 
 class MusclesTabView extends StatelessWidget {
   MusclesTabView({
     super.key,
   });
-  final List<Datum> _fakeMuscles = List.generate(
+  final List<Muscle> _fakeMuscles = List.generate(
     5,
-    (index) => Datum(
-      muscleId: index,
-      muscleName: 'Muscle $index',
+    (index) => Muscle(
+      id: index,
+      name: 'Muscle $index',
       muscleImage: ImageConst.bicep,
     ),
   );
@@ -39,15 +40,15 @@ class MusclesTabView extends StatelessWidget {
               itemBuilder: (context, index) {
                 final muscle = _fakeMuscles[index];
                 return MuscleListItemWidget(
-                  muscleName: muscle.muscleName ?? 'Unknown',
+                  muscleName: muscle.name ?? 'Unknown',
                   imageUrl: muscle.muscleImage ?? ImageConst.bicep,
-                  muscleId: muscle.muscleId ?? 0,
+                  muscleId: muscle.id ?? 0,
                 );
               },
             ),
           );
         case Status.COMPLETED:
-          final muscles = response.response?.data ?? [];
+          final muscles = response.response?.data?.muscles ?? [];
           return ListView.builder(
             padding: const EdgeInsets.all(16),
             scrollDirection: Axis.vertical,
@@ -55,9 +56,9 @@ class MusclesTabView extends StatelessWidget {
             itemBuilder: (context, index) {
               final muscle = muscles[index];
               return MuscleListItemWidget(
-                muscleName: muscle.muscleName ?? 'Unknown',
+                muscleName: muscle.name ?? 'Unknown',
                 imageUrl: muscle.muscleImage ?? ImageConst.bicep,
-                muscleId: muscle.muscleId ?? 0,
+                muscleId: muscle.id ?? 0,
               );
             },
           );
