@@ -6,6 +6,7 @@ import 'package:nicholas_nutrihaven/Presentation/BottomBar/HomeScreen/widgets/st
 import 'package:nicholas_nutrihaven/Presentation/BottomBar/HomeScreen/widgets/track_meal_widget.dart';
 import 'package:nicholas_nutrihaven/Utils/Const/color_const.dart';
 import 'package:nicholas_nutrihaven/Utils/Extensions/text_extension.dart';
+import '../../../Config/session_manager.dart';
 import '../../../Utils/Const/asset_const.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -24,6 +25,7 @@ class HomeScreen extends StatelessWidget {
           ImageConst.user,
           height: 70.h,
         ),
+        centerTitle: false,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -33,7 +35,7 @@ class HomeScreen extends StatelessWidget {
                   context.labelSmall!.copyWith(color: const Color(0xFF919191)),
             ),
             Text(
-              'John',
+              "${AppSessionManager().getUserData?.memberFullName}",
               style: context.titleLarge!
                   .copyWith(fontSize: 20.sp, fontWeight: FontWeight.normal),
             ),
@@ -44,7 +46,7 @@ class HomeScreen extends StatelessWidget {
             children: [
               CircleAvatar(
                   radius: 28.r,
-                  backgroundColor: secondary.withOpacity(0.1),
+                  backgroundColor: secondary.withValues(alpha: 0.1),
                   child: InkWell(
                     onTap: () => Get.toNamed(AppRoutes.notification),
                     child: Icon(
@@ -58,7 +60,7 @@ class HomeScreen extends StatelessWidget {
                 onTap: onTap,
                 child: CircleAvatar(
                     radius: 28.r,
-                    backgroundColor: secondary.withOpacity(0.1),
+                    backgroundColor: secondary.withValues(alpha: 0.1),
                     child: Icon(
                       Icons.menu,
                       size: 30,

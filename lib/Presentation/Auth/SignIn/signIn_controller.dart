@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:nicholas_nutrihaven/Presentation/Auth/SignIn/signin.dart';
 import 'package:nicholas_nutrihaven/Utils/Extensions/text_extension.dart';
 import '../../../../widgets/custom_snackbar.dart';
 import '../../../Config/AppRoutes/routes_imports.dart';
+import '../../../Config/session_manager.dart';
 import '../../../Data/DataSources/remote/api_constant.dart';
 import '../../../Data/Repository/auth_repository.dart';
 import '../../../Helpers/get_storare_helper.dart';
@@ -21,7 +21,6 @@ class SignInController extends GetxController {
   TextEditingController? emailController;
   TextEditingController? passController;
   final AuthRepository _authRepository = AuthRepository();
-  final RxBool _loading = false.obs;
   final RxBool _remember = false.obs;
   final RxBool _isHide = true.obs;
   RxBool get remember => _remember;
@@ -50,56 +49,59 @@ class SignInController extends GetxController {
         "password": passController?.text.trim()
       };
 
-      print('logindata ====== $data');
-      showLoader(true);
+      try {
+        debugPrint('logindata ====== $data');
+        showLoader(true);
+        var value = await _authRepository.SigninApiRepo(data);
+          debugPrint("Calling Success ==> $value");
+          debugPrint("Calling Success ==> ${value..runtimeType}");
+          if (value.user != null) {
+            log("response ==> $value");
+            debugPrint("object => $value");
+            await saveUser(user: value.user!);
+            await saveToken(token: value.token!);
+            ApiConstants.userId = value.user!.memberId.toString();
+            log("Api constants >>> ${ApiConstants.userId}");
 
-      _authRepository.SigninApiRepo(data).then((value) async {
-        debugPrint("Calling Success ==> $value");
-        debugPrint("Calling Success ==> ${value..runtimeType}");
-        if (value.user != null) {
-          log("response ==> $value");
-          debugPrint("object => $value");
-          await saveUser(user: value.user!);
-          await saveToken(token: value.token!);
-          ApiConstants.userId = value.user!.memberId.toString();
-          log("Api constants >>> ${ApiConstants.userId}");
+            AppSessionManager().setUserToken(value.token);
+            AppSessionManager().setUserID("${value.user?.memberId}");
+            AppSessionManager().setUserData = value.user;
 
-          // ApiConstants.userData = null;
-          // await saveUser(user: value);
-          // ApiConstants.userData = getUser();
+            // ApiConstants.userData = null;
+            // await saveUser(user: value);
+            // ApiConstants.userData = getUser();
 
-          /// Save remember me = true
-          await setRememberMe(isRemember: true);
-          showLoader(false);
+            /// Save remember me = true
+            await setRememberMe(isRemember: true);
+            showLoader(false);
 
-          update();
-          ScaffoldMessenger.of(Get.context!).showSnackBar(
-            CustomSnackBar(
-              message: "Success 👏, Sign in successfully",
-            ),
-          );
-          Get.offAllNamed(AppRoutes.bottomBar);
-          if (kDebugMode) {
-            print(value.toString());
+            update();
+            ScaffoldMessenger.of(Get.context!).showSnackBar(
+              CustomSnackBar(
+                message: "Success 👏, Sign in successfully",
+              ),
+            );
+            Get.offAllNamed(AppRoutes.bottomBar);
+            if (kDebugMode) {
+              print(value.toString());
+            }
+          } else {
+
+            update();
+            ScaffoldMessenger.of(Get.context!).showSnackBar(
+              CustomSnackBar(
+                message: "${value.message}",
+                backgroundColor: Colors.red.withValues(alpha: 0.9),
+              ),
+            );
           }
-        } else {
-          showLoader(false);
-
-          update();
-          ScaffoldMessenger.of(Get.context!).showSnackBar(
-            CustomSnackBar(
-              message: "${value.message}",
-              backgroundColor: Colors.red.withOpacity(0.9),
-            ),
-          );
-        }
-      }).onError((error, stackTrace) {
+      } catch (e) {
         showLoader(false);
         update();
         if (kDebugMode) {
-          print(error.toString());
+          print(e.toString());
         }
-      });
+      }
     }
   }
 

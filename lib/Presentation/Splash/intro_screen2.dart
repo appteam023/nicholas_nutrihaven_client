@@ -111,7 +111,7 @@ class IntroScreen2 extends StatelessWidget {
               padding: EdgeInsets.only(bottom: 40.h),
               child: CircularButton(
                 onTap: (){
-                  Get.toNamed(AppRoutes.selectYourPlan);
+                  Get.toNamed(AppRoutes.signIn);
                 },
                 isNext: true
               ),

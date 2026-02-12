@@ -13,6 +13,9 @@ import 'package:nicholas_nutrihaven/Widgets/custom_appbar.dart';
 import 'package:nicholas_nutrihaven/Widgets/custom_button.dart';
 import 'package:nicholas_nutrihaven/main.dart';
 
+import '../../../Config/session_manager.dart';
+import '../../../Helpers/get_storare_helper.dart';
+
 class DrawerScreen extends StatelessWidget {
   const DrawerScreen({super.key});
 
@@ -60,7 +63,7 @@ class DrawerScreen extends StatelessWidget {
                     children: [
                       const Text('Hello!'),
                       Text(
-                        'John!',
+                        "${AppSessionManager().getUserData?.memberFullName}!",
                         style: context.titleLarge!.copyWith(
                             color: primary,
                             fontFamily: 'Inter',
@@ -137,7 +140,9 @@ class DrawerScreen extends StatelessWidget {
                     gradient: gradientYellow,
                     borderRadius: BorderRadius.circular(50.r)),
                 child: GestureDetector(
-                  onTap: () {
+                  onTap: () async {
+                    AppSessionManager().resetAll();
+                    removeUser();
                     Get.offAllNamed(AppRoutes.signIn);
                   },
                   child: Row(
