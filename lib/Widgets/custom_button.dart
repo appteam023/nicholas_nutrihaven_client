@@ -1,6 +1,4 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nicholas_nutrihaven/Utils/Extensions/text_extension.dart';
 
@@ -14,19 +12,21 @@ class CustomButton extends StatelessWidget {
   final TextStyle? style;
   final VoidCallback? onTap;
   final bool isBordered;
+  final bool loading;
+  final EdgeInsetsGeometry? margin;
 
-  bool loading;
-
-  CustomButton(
-      {super.key,
-      this.width,
-      this.height,
-      this.isGradient = true,
-      required this.title,
-      this.style,
-      this.onTap,
-      this.loading = false,
-      this.isBordered = false});
+  const CustomButton({
+    super.key,
+    this.width,
+    this.height,
+    this.isGradient = true,
+    required this.title,
+    this.style,
+    this.onTap,
+    this.loading = false,
+    this.isBordered = false,
+    this.margin,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +35,7 @@ class CustomButton extends StatelessWidget {
       duration: const Duration(milliseconds: 300),
       width: width ?? double.infinity,
       height: height,
+      margin: margin,
       padding: EdgeInsets.zero,
       decoration: BoxDecoration(
         gradient: isEnabled && isGradient ? gradientYellow : gradientGrey,

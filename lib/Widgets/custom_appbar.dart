@@ -12,6 +12,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? onLeadingPressed;
   final IconData? actionIcon;
   final VoidCallback? onActionPressed;
+  final Widget? actionWidget;
   final Widget? actionImage;
   final Color? actionImageBG;
   final bool searchField;
@@ -24,13 +25,14 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.title,
     this.leadingIcon,
     this.onLeadingPressed,
+    this.actionWidget,
     this.actionIcon,
     this.onActionPressed,
     this.actionImage,
     this.actionImageBG,
     this.searchField = false,
     this.searchTFCtrl,
-    this.onChanged,
+    this.onChanged
   });
 
   @override
@@ -40,22 +42,21 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       elevation: 0,
       // leadingWidth: 81.w,
       leadingWidth: 56.w + horizontalPadding,
-      leading: GestureDetector(
-        onTap: () {
+      leading: IconButton(
+        style: ButtonStyle(
+          padding: WidgetStateProperty.all<EdgeInsetsGeometry>(EdgeInsets.all(12)),
+          visualDensity: VisualDensity.comfortable,
+          backgroundColor: WidgetStateProperty.all(secondary.withValues(alpha: 0.1)),
+          foregroundColor: WidgetStateProperty.all(secondary),
+          shape: WidgetStateProperty.all(CircleBorder())
+        ),
+        onPressed: () {
           Get.back();
         },
-        child: Container(
-          margin:
-              EdgeInsets.only(left: horizontalPadding, bottom: 5.h, top: 5.h),
-          decoration: BoxDecoration(
-            color: secondary.withValues(alpha: 0.1),
-            shape: BoxShape.circle,
-            // borderRadius: BorderRadius.circular(100.r),
-          ),
-          child: Icon(
-            leadingIcon ?? Icons.adaptive.arrow_back,
-            color: Colors.white,
-          ),
+        icon: Icon(
+          leadingIcon ?? Icons.chevron_left,
+          size: leadingIcon != null ? 24 : 30,
+          color: Colors.white,
         ),
       ),
       title: title != null
@@ -64,7 +65,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           : null,
       centerTitle: true,
       actions: [
-        if (actionImage != null) // Display circular avatar with custom widget
+        if (actionWidget != null)
+          actionWidget!
+        else if (actionImage != null) // Display circular avatar with custom widget
           Padding(
             padding: EdgeInsets.only(
                 right: horizontalPadding, bottom: 5.h, top: 5.h),

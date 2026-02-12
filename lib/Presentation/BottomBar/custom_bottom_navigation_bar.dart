@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:nicholas_nutrihaven/Presentation/BottomBar/DrawerScreen/drawer_screen.dart';
@@ -11,17 +10,16 @@ import '../../Utils/Const/asset_const.dart';
 import 'bottom_nav_controller.dart';
 
 class CustomBottomNavigationBar extends StatefulWidget {
-  @override
-  _CustomBottomNavigationBarState createState() =>
-      _CustomBottomNavigationBarState();
+  const CustomBottomNavigationBar({super.key});
+
+  @override CustomBottomNavigationBarState createState() => CustomBottomNavigationBarState();
 }
 
-class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
+class CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
   int _selectedIndex = 0;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(statusBarColor: darkTheme));
   }
@@ -41,11 +39,11 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
 
   @override
   Widget build(BuildContext context) {
-    final _bottomNavContoller = Get.put(BottomNavController());
+    final bottomNavController = Get.put(BottomNavController());
 
-    return SafeArea(
+    return SizedBox(
       child: GetBuilder(
-          init: _bottomNavContoller,
+          init: bottomNavController,
           builder: (_) {
             return Scaffold(
               // appBar:
@@ -74,7 +72,10 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
               //             title: Image.asset(ImageConst.logo2),
               //           )
               //         : null,
-              body: _screens[_selectedIndex],
+              body: SafeArea(
+                top: false,
+                child: _screens[_selectedIndex]
+              ),
               // Display the selected screen
               // Custom Bottom Navigation Bar
               extendBody: true,
@@ -96,25 +97,25 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _NavItem(
+                      NavItem(
                         icon: ImageConst.home,
                         label: "Home",
                         isSelected: _selectedIndex == 0,
                         onTap: () => _onItemTapped(0),
                       ),
-                      _NavItem(
+                      NavItem(
                         icon: ImageConst.explore,
                         label: "Explore",
                         isSelected: _selectedIndex == 1,
                         onTap: () => _onItemTapped(1),
                       ),
-                      _NavItem(
+                      NavItem(
                         icon: ImageConst.video,
                         label: "Video",
                         isSelected: _selectedIndex == 2,
                         onTap: () => _onItemTapped(2),
                       ),
-                      _NavItem(
+                      NavItem(
                         icon: ImageConst.profileB,
                         label: "Profile",
                         isSelected: _selectedIndex == 3,
@@ -131,19 +132,19 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
 }
 
 // Navigation Item Widget
-class _NavItem extends StatelessWidget {
+class NavItem extends StatelessWidget {
   final String icon;
   final String label;
   final bool isSelected;
   final VoidCallback onTap;
 
-  const _NavItem({
-    Key? key,
+  const NavItem({
+    super.key,
     required this.icon,
     required this.label,
     required this.isSelected,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

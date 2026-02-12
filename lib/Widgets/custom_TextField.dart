@@ -4,25 +4,26 @@ import 'package:nicholas_nutrihaven/Utils/Const/color_const.dart';
 import 'package:nicholas_nutrihaven/Utils/Extensions/text_extension.dart';
 
 class CustomTextField extends StatelessWidget {
-  String hintText;
-  bool? readOnly;
-  bool? obscureText;
-  TextEditingController? controller;
-  VoidCallback? onTap;
-  void Function(String)? onChanged;
-  Widget? prefix;
-  Widget? suffix;
-  Widget? suffixIcon;
-  int? minLines;
-  int? maxLines;
-  Widget? color;
-  TextInputType? keyboardType;
-  var radius;
-  TextInputAction? inputAction;
-  String? Function(String?)? validator;
-  void Function()?  onEditingComplete;
+  final String hintText;
+  final bool? readOnly;
+  final bool? obscureText;
+  final TextEditingController? controller;
+  final VoidCallback? onTap;
+  final void Function(String)? onChanged;
+  final Widget? prefix;
+  final Widget? suffix;
+  final Widget? suffixIcon;
+  final int? minLines;
+  final int? maxLines;
+  final Widget? color;
+  final TextInputType? keyboardType;
+  final double? radius;
+  final TextInputAction? inputAction;
+  final String? Function(String?)? validator;
+  final void Function()?  onEditingComplete;
+  final Color borderColor;
 
-  CustomTextField({
+  const CustomTextField({
     super.key,
     required this.hintText,
     this.controller,
@@ -40,6 +41,8 @@ class CustomTextField extends StatelessWidget {
     this.onChanged,
     this.onEditingComplete,
     this.keyboardType,
+    this.color,
+    this.borderColor = secondary,
   });
 
   @override
@@ -68,25 +71,25 @@ class CustomTextField extends StatelessWidget {
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(radius ?? 200.r),
             borderSide:  BorderSide(
-              color: secondary,
+              color: borderColor,
             ),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(radius ?? 200.r),
             borderSide:  BorderSide(
-              color: secondary,
+              color: borderColor,
             ),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(radius ?? 200.r),
             borderSide:  BorderSide(
-              color: secondary,
+              color: borderColor,
             ),
           ),
           disabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(radius ?? 200.r),
             borderSide:  BorderSide(
-              color: secondary,
+              color: borderColor,
             ),
           ),
           suffixIcon: suffixIcon,
