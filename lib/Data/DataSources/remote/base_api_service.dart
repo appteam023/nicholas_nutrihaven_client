@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 abstract class BaseApiServices {
   Future<dynamic> GetResponse({
     required String url,

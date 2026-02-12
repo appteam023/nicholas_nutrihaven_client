@@ -1,12 +1,12 @@
 class ApiExceptions implements Exception {
-  final _message;
-  final _prefix;
+  final String? message;
+  final String? prefix;
 
-  ApiExceptions([this._message, this._prefix]);
+  ApiExceptions([this.message, this.prefix]);
 
   @override
   String toString() {
-    return '$_prefix: $_message';
+    return '$message';
   }
 }
 

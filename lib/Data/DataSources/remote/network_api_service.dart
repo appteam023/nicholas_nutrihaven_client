@@ -1,9 +1,14 @@
+// ignore_for_file: non_constant_identifier_names
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:get/get.dart' hide FormData;
+import 'package:nicholas_nutrihaven/Widgets/loader_widget.dart';
 import 'dart:io';
 import '../../../Helpers/get_storare_helper.dart';
+import '../../../Widgets/custom_snackbar.dart';
 import 'api_constant.dart';
 import 'api_error_handling.dart';
 import 'api_exception.dart';
@@ -30,8 +35,11 @@ class NetworkApiService implements BaseApiServices {
       String? token;
       if (isTokenRequired) {
         token = getToken();
-        print("token ==> $token");
+        log("token ==> $token");
       }
+      log("==================API REQUEST==================");
+      log(url.toString());
+      log(queryParameter.toString());
       var response = await dio
           .get(
             url,
@@ -42,17 +50,22 @@ class NetworkApiService implements BaseApiServices {
             ),
           )
           .timeout(const Duration(seconds: 20));
-      debugPrint("==================API RESPONSE==================");
-      debugPrint(response.realUri.toString());
-      debugPrint(response.statusCode.toString());
-      debugPrint(response.data.toString());
+      log("==================API RESPONSE==================");
+      log(response.realUri.toString());
+      log(response.requestOptions.queryParameters.toString());
+      log(response.statusCode.toString());
+      log(response.data.toString());
       return response.data;
     } on SocketException {
-      throw NoInternetException('No Internet Connection');
+      final error = NoInternetException('No Internet Connection');
+      showDialog(error);
+      throw error;
     } on TimeoutException {
-      throw NoInternetException('Network Request time out');
+      final error = NoInternetException('Network Request time out');
+      showDialog(error);
+      throw error;
     } on DioException catch (e) {
-      errorHandling(e);
+      errorHandling(e, (err, msg)=> showDialog(e, msg));
     }
   }
 
@@ -67,6 +80,13 @@ class NetworkApiService implements BaseApiServices {
         token = getToken();
         debugPrint("user token: $token");
       }
+      log("==================API REQUEST==================");
+      log(url.toString());
+      if (data is FormData) {
+        log(data.fields.toString());
+      } else {
+        log(data.toString());
+      }
 
       var response = await dio
           .post(
@@ -77,15 +97,22 @@ class NetworkApiService implements BaseApiServices {
             ),
           )
           .timeout(const Duration(seconds: 20));
-      print('Code Verified');
+      log("==================API RESPONSE==================");
+      log(response.realUri.toString());
+      log(response.requestOptions.queryParameters.toString());
+      log(response.statusCode.toString());
+      log(response.data.toString());
       return response.data;
     } on SocketException {
-      throw NoInternetException('No Internet Connection');
+      final error = NoInternetException('No Internet Connection');
+      showDialog(error);
+      throw error;
     } on TimeoutException {
-      throw NoInternetException('Network Request time out');
+      final error = NoInternetException('Network Request time out');
+      showDialog(error);
+      throw error;
     } on DioException catch (e) {
-      print("base api error: $e");
-      errorHandling(e);
+      errorHandling(e, (err, msg)=> showDialog(e, msg));
     }
   }
 
@@ -113,11 +140,15 @@ class NetworkApiService implements BaseApiServices {
           .timeout(const Duration(seconds: 20));
       return response.data;
     } on SocketException {
-      throw NoInternetException('No Internet Connection');
+      final error = NoInternetException('No Internet Connection');
+      showDialog(error);
+      throw error;
     } on TimeoutException {
-      throw NoInternetException('Network Request time out');
+      final error = NoInternetException('Network Request time out');
+      showDialog(error);
+      throw error;
     } on DioException catch (e) {
-      errorHandling(e);
+      errorHandling(e, (err, msg)=> showDialog(e, msg));
     }
   }
 
@@ -128,7 +159,7 @@ class NetworkApiService implements BaseApiServices {
     try {
       String? token;
       if (isTokenRequired) {
-        print("token ==> $token");
+        log("token ==> $token");
         token = getToken();
       }
       // debugPrint("user token: $token");
@@ -149,11 +180,37 @@ class NetworkApiService implements BaseApiServices {
       // debugPrint(response.data.toString());
       return response.data;
     } on SocketException {
-      throw NoInternetException('No Internet Connection');
+      final error = NoInternetException('No Internet Connection');
+      showDialog(error);
+      throw error;
     } on TimeoutException {
-      throw NoInternetException('Network Request time out');
+      final error = NoInternetException('Network Request time out');
+      showDialog(error);
+      throw error;
     } on DioException catch (e) {
-      errorHandling(e);
+      errorHandling(e, (err, msg)=> showDialog(e, msg));
     }
+  }
+
+  void showDialog(Exception error, [String? msg]) {
+    if (kIsLoading) {
+      kIsLoading = false;
+      Get.back();
+    }
+    String message = "Something went wrong";
+    if (msg != null) {
+      message = msg;
+    }
+    else if (error is ApiExceptions) {
+      message = error.message.toString();
+    } else if (error is DioException) {
+      message = error.response?.data?.toString() ?? error.error.toString();
+    }
+    Get.dialog(
+      CustomAlertDialog(
+        title: "Error",
+        message: message,
+      )
+    );
   }
 }
