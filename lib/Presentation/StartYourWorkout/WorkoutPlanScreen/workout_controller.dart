@@ -24,7 +24,6 @@ class WorkOutController extends GetxController {
 
   void startTimer() {
     if (isRunning) return;
-    logStartWorkoutTime();
     isRunning = true;
     startTime ??= DateTime.now();
     timer = Timer.periodic(Duration(seconds: 1), (timer) {

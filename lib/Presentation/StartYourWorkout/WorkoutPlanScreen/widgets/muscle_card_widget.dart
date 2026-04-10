@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:nicholas_nutrihaven/Utils/Const/asset_const.dart';
 import 'package:nicholas_nutrihaven/Utils/Const/color_const.dart';
 import 'package:nicholas_nutrihaven/Utils/Extensions/text_extension.dart';
 import 'package:nicholas_nutrihaven/Widgets/image_widget.dart';
@@ -20,11 +18,11 @@ class MuscleCardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: grey.withOpacity(0.2),
+      color: grey.withValues(alpha: 0.2),
       elevation: 0,
       child: SizedBox(
-        width: 180.w,
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Card(
                 shape: RoundedRectangleBorder(
@@ -50,13 +48,22 @@ class MuscleCardWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(muscleName, style: context.labelLarge),
+                Flexible(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: Text(
+                      muscleName, style: context.labelLarge,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
                 SizedBox(height: 5.h),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 2, horizontal: 10),
+                  padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 10),
+                  margin: const EdgeInsets.only(right: 8.0),
                   decoration: BoxDecoration(
-                    color: grey.withOpacity(0.2),
+                    color: grey.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(100),
                   ),
                   child: Text(

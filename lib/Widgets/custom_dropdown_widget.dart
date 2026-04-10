@@ -332,3 +332,92 @@ class CustomDropDown<T> extends StatelessWidget {
     );
   }
 }
+
+
+class CustomDropdownWidget<T> extends StatelessWidget {
+  const CustomDropdownWidget({
+    super.key,
+    required this.dropdownItems,
+    required this.onChanged,
+    required this.selectedValue,
+    this.hint,
+    this.customButton,
+  });
+
+  final List<T> dropdownItems;
+  final ValueChanged<T?>? onChanged;
+  final T? selectedValue;
+  final String? hint;
+  final Widget? customButton;
+
+  @override
+  Widget build(BuildContext context) {
+    return DropdownButtonHideUnderline(
+      child: DropdownButton2(
+        customButton: customButton ?? Container(
+          height: 40.h,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          margin: EdgeInsets.only(right: 8),
+          decoration: BoxDecoration(
+            color: grey.withValues(alpha: 0.2),
+            border: Border.all(color: Colors.transparent),
+            borderRadius: BorderRadius.circular(100.r),
+          ),
+          child: Row(
+            children: [
+              Text(
+                selectedValue != null
+                    ? (selectedValue is Map && Map.from(selectedValue as Map).isNotEmpty)
+                        ? Map.from(selectedValue as Map).values.first.toString()
+                        : selectedValue.toString()
+                    : hint ?? "Select",
+                style: TextStyle(color: black),
+              ),
+              const Icon(
+                Icons.keyboard_arrow_down,
+                size: 20,
+                color: Colors.black,
+              )
+            ]
+          ),
+        ),
+        items: dropdownItems.map((T item) => DropdownMenuItem<T>(
+          value: item,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Text(
+              (item is Map && item.isNotEmpty)
+                  ? item.values.first.toString()
+                  : item.toString(),
+              // item is Object
+              //     ? item.toString()
+              //     : item is Map ? Map.castFrom(item).values.first : item.toString(),
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
+          ),
+        )).toList(),
+        onChanged: onChanged,
+        buttonStyleData: const ButtonStyleData(
+          padding: EdgeInsets.symmetric(horizontal: 16),
+          height: 40,
+          // width: 140,
+        ),
+        dropdownStyleData: const DropdownStyleData(
+          maxHeight: 300,
+          width: 140,
+          padding: EdgeInsets.symmetric(vertical: 8),
+        ),
+        menuItemStyleData: const MenuItemStyleData(
+          padding: EdgeInsets.symmetric(horizontal: 8.0),
+        ),
+        iconStyleData: const IconStyleData(
+          openMenuIcon: Icon(Icons.arrow_drop_up),
+        ),
+      ),
+    );
+  }
+}

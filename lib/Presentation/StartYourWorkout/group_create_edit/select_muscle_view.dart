@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../Config/AppRoutes/routes_imports.dart';
 import '../../../Data/DataSources/remote/api_constant.dart';
 import '../../../Utils/Const/color_const.dart';
 import '../../../Utils/Extensions/text_extension.dart';
@@ -31,7 +30,7 @@ class SelectMuscleView extends StatelessWidget {
           child: Scaffold(
             backgroundColor: secondary,
             appBar: CustomAppBar(
-              title: "Select Muscle",
+              title: "Select Muscles",
             ),
             body: SafeArea(
               child: Padding(
@@ -99,17 +98,17 @@ class SelectMuscleView extends StatelessWidget {
                                     children: [
                                       InkWell(
                                         onTap: () {
-                                          if (controller.selectedMuscle.value?.id == element?.id) {
-                                            controller.selectedMuscle.value = null;
+                                          if (controller.selectedMuscle.map((e) => e.id).contains(element?.id)) {
+                                            controller.selectedMuscle.removeWhere((e) => e.id == element?.id);
                                           } else {
-                                            controller.selectedMuscle.value = element;
+                                            controller.selectedMuscle.add(element!);
                                           }
                                           controller.update();
                                         },
                                         child: Container(
                                           decoration: BoxDecoration(
                                             borderRadius: BorderRadius.circular(
-                                              controller.selectedMuscle.value?.id == element?.id ? 10 : 0
+                                                controller.selectedMuscle.map((e) => e.id).contains(element?.id) ? 10 : 0
                                             ),
                                             // color: themeColor,
                                           ),
@@ -125,7 +124,7 @@ class SelectMuscleView extends StatelessWidget {
                                                   width: 100,
                                                 ),
                                               ),
-                                              controller.selectedMuscle.value?.id == element?.id ? Container(
+                                              controller.selectedMuscle.map((e) => e.id).contains(element?.id) ? Container(
                                                 decoration: BoxDecoration(
                                                   borderRadius: BorderRadius.circular(10),
                                                   color: yellow.withValues(alpha: 0.5)
@@ -157,7 +156,6 @@ class SelectMuscleView extends StatelessWidget {
                                           overflow: TextOverflow.ellipsis,
                                           textAlign: TextAlign.center,
                                           maxLines: 2,
-
                                         ),
                                       ),
                                     ],
@@ -187,11 +185,11 @@ class SelectMuscleView extends StatelessWidget {
               ),
             ),
             floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-            floatingActionButton: controller.selectedMuscle.value == null ? null : CustomButton(
+            floatingActionButton: controller.selectedMuscle.isEmpty ? null : CustomButton(
               margin: EdgeInsets.symmetric(horizontal: horizontalPadding),
               title: "Continue",
               onTap: () {
-                Get.toNamed(AppRoutes.selectExercise);
+                Get.back();
               },
             ),
           ),

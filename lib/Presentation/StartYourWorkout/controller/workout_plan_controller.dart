@@ -8,36 +8,93 @@ import '../../../Config/AppRoutes/routes_imports.dart';
 import '../../../Data/Model/ExcerciseModel/get_exercise_model.dart';
 import '../../../Data/Model/ExerciseGroup/group_details_model.dart';
 import '../../../Data/Model/WorkOutLogs/workout_logs_model.dart';
+import '../../../Data/Model/WorkoutPlan/custom_workout_plan_model.dart';
 import '../../../Data/Model/muscleModel/get_muscle_model.dart';
 import '../../../Data/Repository/workout_repository.dart';
-import '../../../Data/Response/api_response.dart';
-import '../../../Data/Model/ExerciseGroup/group_model.dart';
+import '../../../Data/Model/ExerciseGroup/saved_workout_model.dart';
 import '../../../Utils/Const/color_const.dart';
 import '../../../Widgets/custom_TextField.dart';
 import '../../../Widgets/custom_button.dart';
 import '../../../Widgets/custom_dialog.dart';
 import '../../../Widgets/custom_snackbar.dart';
 import '../../../Widgets/loader_widget.dart';
+import '../WorkoutPlanScreen/start_workout_view.dart';
 
 class WorkoutPlanController extends GetxController {
 
   var isLoading = false.obs;
 
-  final WorkOutRepository workOutRepository = WorkOutRepository();
-  final Rx<ApiResponse<MuscleModel>> getMuscleResponse =
-      ApiResponse<MuscleModel>.initial().obs;
+  List<String> filterDuration = [
+    "5 Min",
+    "10 Min",
+    "15 Min",
+    "20 Min",
+    "25 Min",
+    "30 Min",
+    "35 Min",
+    "40 Min",
+    "45 Min",
+    "50 Min",
+    "60 Min"
+  ];
+  List<String> filterMuscleGroup = ["Fresh Muscle", "Trained Muscle"];
+  List<String> filterLevel = ["Beginner", "Intermediate", "Advanced"];
+  List<Map<int,String>> filterMuscle = [
+    {1: "ABS & CORE"},
+    {2: "BACK"},
+    {3: "BICEPS"},
+    {4: "CARDIO"},
+    {5: "CHEST"},
+    {6: "FOREARMS"},
+    {7: "LEGS & GLUTES"},
+    {8: "RESISTANCE BAND"},
+    {9: "SHOULDERS"},
+    {10: "STRETCHES"},
+    {11: "TRICEPS"},
+  ];
+  List<String> filterGoal = [
+    "Bodybuilding",
+    "Weight Maintenance",
+    "Weight Loss",
+    "Flexibility",
+    "Cardio",
+    "Improve Mobility",
+    "Stress Relief",
+    "Injury prevention",
+    "Rehab",
+    "Increase energy levels",
+    "Improve posture",
+  ];
 
-  Rxn<GroupData> groupData = Rxn<GroupData>(null);
+  Rx<WorkoutFilter> selectedFilter = WorkoutFilter(
+    duration: "5 Min",
+    muscleGroup: "Fresh Muscle",
+    level: "Beginner",
+    muscle: {1: "ABS & CORE"},
+    goal: "Bodybuilding",
+    muscleList: [],
+  ).obs;
+  WorkoutFilter? lastFilter;
+
+  final WorkOutRepository workOutRepository = WorkOutRepository();
+
+  Rxn<WorkoutData> workoutData = Rxn<WorkoutData>(null);
+  CustomWorkout? selectedSavedWorkout;
   Rxn<MuscleData> musclesData = Rxn<MuscleData>(null);
   Rxn<ExerciseData> exerciseData = Rxn<ExerciseData>(null);
-  Rxn<Muscle> selectedMuscle = Rxn<Muscle>(null);
+  Rxn<ExerciseData> addNewExerciseData = Rxn<ExerciseData>(null);
+  Rxn<Exercise> selectedExercise = Rxn<Exercise>(null);
+  RxList<Muscle> selectedMuscle = <Muscle>[].obs;
   Rxn<GroupDetails> groupDetails = Rxn<GroupDetails>(null);
   Rxn<WorkOutData> workoutLogData = Rxn<WorkOutData>(null);
-  RxList<int> selectedExercises = <int>[].obs;
+  RxList<Exercise> selectedExercises = <Exercise>[].obs;
 
   TextEditingController editGroupNameTFCtrl = TextEditingController();
   var isStartTimer = false.obs;
+  Rxn<CustomWorkout> workoutPlan = Rxn<CustomWorkout>(null);
   GroupExercises? workoutExercise;
+
+  bool isSavedWorkOutSelected = false;
 
 
 
@@ -45,32 +102,87 @@ class WorkoutPlanController extends GetxController {
   void onInit() {
     super.onInit();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      fetchGroups();
+      lastFilter = selectedFilter.value;
+      fetchExercises(filter: selectedFilter.value);
     });
   }
 
+  @override
+  void onReady() {
+    super.onReady();
+    debounce(selectedFilter, (WorkoutFilter newFilter) {
+      if (lastFilter != newFilter) {
+        lastFilter = newFilter;
+        isSavedWorkOutSelected = false;
+        fetchExercises(filter: newFilter, onFilterChange: true);
+      }
+    }, time: Duration(milliseconds: 600));
+  }
 
-  Future<void> fetchGroups({bool forceReload = false}) async {
+  @override
+  void onClose() {
+    super.onClose();
+    editGroupNameTFCtrl.dispose();
+  }
+
+  void updateFilter({
+    String? duration,
+    String? muscleGroup,
+    String? level,
+    Map<int, String>? muscle,
+    String? goal,
+    List<Muscle>? muscleList,
+  }) {
+    final current = selectedFilter.value;
+    selectedFilter.value = WorkoutFilter(
+      duration: duration ?? current.duration,
+      muscleGroup: muscleGroup ?? current.muscleGroup,
+      level: level ?? current.level,
+      muscle: muscle ?? current.muscle,
+      goal: goal ?? current.goal,
+      muscleList: muscleList ?? current.muscleList,
+    );
+  }
+
+  void reset() {
+    selectedFilter.value = WorkoutFilter(
+      duration: "5 Min",
+      muscleGroup: "Fresh Muscle",
+      level: "Beginner",
+      muscle: {1: "ABS & CORE"},
+      goal: "Bodybuilding",
+      muscleList: [],
+    );
+    lastFilter = selectedFilter.value;
+    selectedMuscle.value = [];
+    selectedExercises.value = [];
+    exerciseData.value?.exercises = [];
+    exerciseData.value = null;
+    update();
+  }
+
+
+  Future<void> fetchWorkoutPlanList({bool forceReload = false}) async {
     if (forceReload) {
-      groupData.value = null;
+      workoutData.value = null;
     }
     try {
-      if(groupData.value != null && groupData.value?.currentPage == groupData.value?.lastPage) {
+      if(workoutData.value != null && workoutData.value?.currentPage == workoutData.value?.lastPage) {
         return;
       }
       showLoader(true);
-      var res = await workOutRepository.getGroup(
-        pageNo: groupData.value?.currentPage != null
-            ? ((groupData.value?.currentPage ?? 0) + 1) : 1
+      var res = await workOutRepository.getWorkoutPlan(
+        pageNo: workoutData.value?.currentPage != null
+            ? ((workoutData.value?.currentPage ?? 0) + 1) : 1
       );
-      if (res != null && res.data?.groups != null) {
-        if(groupData.value == null) {
-          groupData.value = res.data;
+      if (res != null && res.data?.workouts != null) {
+        if(workoutData.value == null) {
+          workoutData.value = res.data;
         }
-        else if (groupData.value != null && groupData.value?.groups != null && groupData.value!.groups!.isNotEmpty) {
-          groupData.value?.currentPage = res.data?.currentPage;
-          groupData.value?.lastPage = res.data?.lastPage;
-          groupData.value?.groups?.addAll(res.data?.groups ?? []);
+        else if (workoutData.value != null && workoutData.value?.workouts != null && workoutData.value!.workouts!.isNotEmpty) {
+          workoutData.value?.currentPage = res.data?.currentPage;
+          workoutData.value?.lastPage = res.data?.lastPage;
+          workoutData.value?.workouts?.addAll(res.data?.workouts ?? []);
         }
       }
     } catch (_) {
@@ -82,7 +194,7 @@ class WorkoutPlanController extends GetxController {
 
   Future<void> fetchMuscles({bool forceReload = false}) async {
     if (forceReload) {
-      selectedMuscle.value = null;
+      selectedMuscle.value = [];
       musclesData.value = null;
     }
     try {
@@ -110,30 +222,27 @@ class WorkoutPlanController extends GetxController {
     }
   }
 
-  Future<void> fetchExercises({bool forceReload = false, required int? muscleId}) async {
-    if (forceReload) {
-      selectedExercises.clear();
-      exerciseData.value = null;
-    }
-    if (exerciseData.value != null && exerciseData.value!.exercises != null && exerciseData.value!.exercises!.isNotEmpty &&
-        exerciseData.value!.exercises!.first.muscleGroupId != muscleId) {
-      selectedExercises.clear();
+  Future<void> fetchExercises({bool forceReload = false, WorkoutFilter? filter, bool onFilterChange = false}) async {
+    if (forceReload || onFilterChange) {
       exerciseData.value = null;
     }
     try {
-      if(exerciseData.value != null && exerciseData.value?.currentPage == exerciseData.value?.lastPage) {
+      if(!onFilterChange && exerciseData.value != null && exerciseData.value?.currentPage == exerciseData.value?.lastPage) {
         return;
       }
       isLoading(true);
       var res = await workOutRepository.getExercise(
-        muscleId: muscleId,
-        pageNo: exerciseData.value?.currentPage != null
-          ? ((exerciseData.value?.currentPage ?? 0) + 1) : 1
+        queryParameter: {
+          "duration_minutes": filter?.duration.split(" ").first,
+          "difficulty": filter?.level,
+          "goal": filter?.goal,
+          "muscle_group_id": "${filter?.muscle.keys.first},${selectedMuscle.map((e) => e.id).join(",")}",
+          "page": exerciseData.value?.currentPage != null
+              ? ((exerciseData.value?.currentPage ?? 0) + 1) : 1, //23,
+          "per_page": 20,
+        },
       );
       if (res != null && res.data?.exercises != null) {
-        if (selectedMuscle.value?.name == null && (res.data?.exercises?.isNotEmpty ?? false)) {
-          selectedMuscle.value?.name = res.data?.exercises?.first.muscleGroup?.name;
-        }
         if(exerciseData.value == null) {
           exerciseData.value = res.data;
         }
@@ -141,6 +250,39 @@ class WorkoutPlanController extends GetxController {
           exerciseData.value?.currentPage = res.data?.currentPage;
           exerciseData.value?.lastPage = res.data?.lastPage;
           exerciseData.value?.exercises?.addAll(res.data?.exercises ?? []);
+        }
+      }
+    } catch (_) {
+    } finally {
+      isLoading(false);
+    }
+  }
+
+  Future<void> fetchAllExercises({bool forceReload = false}) async {
+    if (forceReload) {
+      addNewExerciseData.value = null;
+    }
+    try {
+      if(addNewExerciseData.value != null && addNewExerciseData.value?.currentPage == addNewExerciseData.value?.lastPage) {
+        return;
+      }
+      isLoading(true);
+      var res = await workOutRepository.getExercise(
+        queryParameter: {
+          "page": addNewExerciseData.value?.currentPage != null
+              ? ((addNewExerciseData.value?.currentPage ?? 0) + 1) : 1,
+          "per_page": 20,
+        }
+      );
+      if (res != null && res.data?.exercises != null) {
+        if(addNewExerciseData.value == null) {
+          addNewExerciseData.value = res.data;
+        }
+        else if (addNewExerciseData.value != null && addNewExerciseData.value?.exercises != null
+            && addNewExerciseData.value!.exercises!.isNotEmpty) {
+          addNewExerciseData.value?.currentPage = res.data?.currentPage;
+          addNewExerciseData.value?.lastPage = res.data?.lastPage;
+          addNewExerciseData.value?.exercises?.addAll(res.data?.exercises ?? []);
         }
       }
     } catch (_) {
@@ -157,7 +299,7 @@ class WorkoutPlanController extends GetxController {
       builder: (BuildContext context) {
         return CustomDialog(
           padding: const EdgeInsets.fromLTRB(12,22,12,12),
-          heading: isEditing ? "Edit Workout Group" : "Create Workout Group",
+          heading: isEditing ? "Edit Workout Plan" : "Create Workout Plan",
           onClose: () {
             Navigator.of(context).pop();
             editGroupNameTFCtrl.clear();
@@ -178,7 +320,7 @@ class WorkoutPlanController extends GetxController {
                   padding: const EdgeInsets.symmetric(vertical: 18.0),
                   child: CustomTextField(
                     controller: editGroupNameTFCtrl,
-                    hintText: "Enter Group Name",
+                    hintText: "Enter Workout Name",
                     maxLines: 3,
                     prefix: const Icon(Icons.edit_note, color: grey,),
                     borderColor: themeColor,
@@ -197,15 +339,50 @@ class WorkoutPlanController extends GetxController {
   }
 
 
-  Future<void> getGroupDetails({int? groupID,}) async {
+  Future<void> getGroupDetails({CustomWorkout? workout}) async {
     try {
       isLoading(true);
-      var res = await workOutRepository.groupDetails(
-        groupID: groupID,
+      // var res = await workOutRepository.groupDetails(
+      //   groupID: groupID,
+      // );
+      selectedSavedWorkout = CustomWorkout(
+        id: workout?.id,
+        memberID: workout?.memberID,
+        name: workout?.name,
+        exerciseData: CustomExerciseData(
+          filters: workout?.exerciseData?.filters,
+          exercises: workout?.exerciseData?.exercises?.map((e) => e.copyWith()).toList(),
+          // [...workout?.exerciseData?.exercises ?? <Exercise>[]],
+          total: workout?.exerciseData?.total,
+        ),
+        isActive: workout?.isActive,
+        createdAt: workout?.createdAt,
+        updatedAt: workout?.updatedAt,
       );
-      if (res != null) {
-        groupDetails.value = res.data;
-        Get.toNamed(AppRoutes.groupDetail);
+      if (workout != null) {
+        selectedFilter.value = WorkoutFilter(
+          duration: "${workout.exerciseData?.filters?.durationMinutes} Min",
+          muscleGroup: "Fresh Muscle",
+          level: "${workout.exerciseData?.filters?.difficulty}",
+          muscle: workout.exerciseData?.filters?.muscleGroupFilter?.data ?? {1: "ABS & CORE"},
+          goal: "${workout.exerciseData?.filters?.goal}",
+          muscleList: workout.exerciseData?.filters?.muscleGroupList != null ?
+              [...workout.exerciseData?.filters?.muscleGroupList! ?? []] : []
+        );
+        lastFilter = selectedFilter.value;
+        selectedMuscle.value = [...workout.exerciseData?.filters?.muscleGroupList! ?? []];
+        exerciseData.value = ExerciseData(
+          currentPage: 1,
+          exercises: workout.exerciseData?.exercises?.map((e) => e.copyWith()).toList(),
+          // [...workout.exerciseData?.exercises ?? []],
+          from: 1,
+          lastPage: 1,
+          perPage: 20,
+          to: 1,
+          total: workout.exerciseData?.total,
+        );
+        isSavedWorkOutSelected = true;
+        Get.back();
       }
     } catch (_) {
     } finally {
@@ -213,72 +390,100 @@ class WorkoutPlanController extends GetxController {
     }
   }
 
-  Future<void> createGroup(BuildContext context, {List<int>? selectedExercises,}) async {
-    await getGroupName(context, isEditing: false);
-    if (editGroupNameTFCtrl.text.trim().isEmpty || (selectedExercises?.isEmpty ?? false)) return;
-
+  Future<void> createWorkoutPlan(BuildContext context, {required List<Exercise> listOfExercises, bool saveWorkout = false}) async {
+    if (saveWorkout) {
+      await getGroupName(context, isEditing: false);
+    }
+    if (saveWorkout && editGroupNameTFCtrl.text.trim().isEmpty) return;
+    if (listOfExercises.isEmpty) return;
     try {
       isLoading(true);
-      var res = await workOutRepository.createGroup(
-        groupName: editGroupNameTFCtrl.text.trim(),
-        exerciseIDs: selectedExercises!,
-      );
-      if (res != null) {
-        await fetchGroups(forceReload: true);
-        selectedExercises.clear();
-        editGroupNameTFCtrl.clear();
-        selectedMuscle.value = null;
-        Get.close(2);
+      final Map<String, dynamic> filter = {
+        "duration_minutes": selectedFilter.value.duration.split(" ").first,
+        "difficulty": selectedFilter.value.level,
+        "goal": selectedFilter.value.goal,
+        "muscle_group_filter": selectedFilter.value.muscle.map(
+          (key, value) => MapEntry(key.toString(), value),
+        ),
+        "muscle_group_list": [...selectedMuscle.map(
+          (e) => e.toJson().map((key, value) => MapEntry(key.toString(), value),))
+        ],
+      };
 
+      final List<Map<String, dynamic>> exercises = listOfExercises.map((e) => e.toJson().map(
+        (key, value) => MapEntry(key.toString(), value),)
+      ).toList();
+
+      final Map<String, dynamic> data = {
+        if (editGroupNameTFCtrl.text.isNotEmpty) "name": editGroupNameTFCtrl.text.trim(),
+        "exercises_data": {
+          "filters": filter,
+          "exercises": exercises,
+          "total": exercises.length,
+        }
+      };
+
+      // log(jsonEncode(data));
+      //
+      // print(CustomWorkout.fromJson(data).exerciseData?.filters?.toJson());
+
+      // return;
+
+      var res = await workOutRepository.createGroup(
+        data: data
+      );
+      if (res.isNotEmpty) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-          CustomSnackBar(
-            message: "Success 👏, Group Created successfully",
-          ),
-        );
+            CustomSnackBar(message: "Success 👏, Workout Plan Created successfully",),
+          );
         }
+        // reset();
+        navigateToStartWorkout(CustomWorkout.fromJson(res["data"]));
       }
     } catch (_) {
     } finally {
       isLoading(false);
     }
+  }
+  void navigateToStartWorkout(CustomWorkout? res) {
+    workoutPlan.value = res;
+    // print(CustomWorkout.fromJson(res["data"]).exerciseData?.filters?.toJson());
+    Get.to(() => StartWorkoutView());
   }
 
   Future<void> updateExercisesInGroup(BuildContext context, {
     int? groupID, String? groupName, int? muscleID, String? muscleName,
     List<int>? selectedExercises
   }) async {
-    selectedMuscle.value = Muscle(id: muscleID, name: muscleName);
-    this.selectedExercises.value = selectedExercises ?? [];
+    selectedMuscle.value = [Muscle(id: muscleID, name: muscleName)];
+    this.selectedExercises.value = [];// selectedExercises ?? [];
     Get.toNamed(AppRoutes.selectExercise, arguments: {
       "isEditing": true,
     });
   }
 
   Future<void> editGroup(BuildContext context, {
-    required int? groupID, required String? groupName, List<int>? selectedExercises,
+    required int? workoutID, required String? workoutName,
     VoidCallback? onSuccess,
   }) async {
-    await getGroupName(context, isEditing: true, groupName: groupName);
+    await getGroupName(context, isEditing: true, groupName: workoutName);
     if (editGroupNameTFCtrl.text.trim().isEmpty) return;
-
     try {
       isLoading(true);
       var res = await workOutRepository.updateGroup(
-        groupID: groupID,
-        groupName: editGroupNameTFCtrl.text.trim(),
-        exerciseIDs: selectedExercises!,
+        workoutID: workoutID,
+        workoutName: editGroupNameTFCtrl.text.trim(),
       );
-      if (res != null) {
-        for (Group e in groupData.value?.groups ?? []) {
-          if (e.id == groupID) {
-            e.title = res.data?.title;
-            e.groupExercisesCount = res.data?.groupExercises?.length;
+      if (res.isNotEmpty) {
+        for (CustomWorkout e in workoutData.value?.workouts ?? []) {
+          if (e.id == workoutID) {
+            e.name = res["data"]["name"] ?? workoutName;
+            update(["saved-workout-list"]);
             break;
           }
         }
-        this.selectedExercises.clear();
-        groupDetails.value = res.data;
+        selectedExercises.clear();
         editGroupNameTFCtrl.clear();
         if (onSuccess != null) {
           onSuccess();
@@ -286,7 +491,7 @@ class WorkoutPlanController extends GetxController {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             CustomSnackBar(
-              message: "Success 👏, Group updated successfully",
+              message: "Success 👏, Workout updated successfully",
             ),
           );
         }
@@ -297,15 +502,15 @@ class WorkoutPlanController extends GetxController {
     }
   }
 
-  Future<void> deleteGroup(BuildContext context, {required int? groupID,}) async {
+  Future<void> deleteGroup(BuildContext context, {required int? workoutID,}) async {
     try {
       isLoading(true);
       var res = await workOutRepository.deleteGroup(
-        groupID: groupID,
+        workoutID: workoutID,
       );
       // res => {status: true, message: Exercise group deleted successfully}
       if (res != null) {
-        groupData.value?.groups?.removeWhere((element) => element.id == groupID);
+        workoutData.value?.workouts?.removeWhere((element) => element.id == workoutID);
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             CustomSnackBar(
@@ -328,9 +533,9 @@ class WorkoutPlanController extends GetxController {
       );
       // res => {status: true, message: Exercise group deleted successfully}
       if (res != null) {
-        for (Group group in groupData.value?.groups ?? []){
-          if (group.id == groupID) {
-            group.groupExercisesCount = (group.groupExercisesCount ?? 1) - 1;
+        for (CustomWorkout workout in workoutData.value?.workouts ?? []){
+          if (workout.id == groupID) {
+            workout.exerciseData?.total = (workout.exerciseData?.total ?? 1) - 1;
           }
           groupDetails.value?.groupExercises?.removeWhere((e) => e.id == exerciseID);
         }
@@ -349,12 +554,37 @@ class WorkoutPlanController extends GetxController {
   }
 
 
-  Future<bool> logEndWorkoutTime(BuildContext context, DateTime? workoutTime) async {
+  Future<bool> logEndWorkoutTime(
+      BuildContext context, DateTime? workoutStartTime, DateTime? workoutEndTime, ) async {
     try {
+      final Map<String, dynamic> filter = {
+        "duration_minutes": workoutPlan.value?.exerciseData?.filters?.durationMinutes?.split(" ").first,
+        "difficulty": workoutPlan.value?.exerciseData?.filters?.difficulty,
+        "goal": workoutPlan.value?.exerciseData?.filters?.goal,
+        "muscle_group_filter": workoutPlan.value?.exerciseData?.filters?.muscleGroupFilter?.data?.map(
+          (key, value) => MapEntry(key.toString(), value),
+        ),
+        "muscle_group_list": [...workoutPlan.value?.exerciseData?.filters?.muscleGroupList?.map(
+          (e) => e.toJson().map((key, value) => MapEntry(key.toString(), value),)) ?? []
+        ],
+      };
+
+      final List<Map<String, dynamic>> exercises = workoutPlan.value?.exerciseData?.exercises?.map((e) => e.toJson().map(
+        (key, value) => MapEntry(key.toString(), value),)
+      ).toList() ?? [];
+
+      final Map<String, dynamic> data = {
+        "filters": filter,
+        "exercises": exercises,
+        "total": exercises.length,
+      };
       var res = await workOutRepository.logWorkoutTime(
         data: {
-          "group_exercise_id": Get.find<WorkoutPlanController>().workoutExercise?.id,
-          "end_time": DateFormat("HH:mm:ss").format(workoutTime?.toUtc() ?? DateTime.now().toUtc()),
+          "workout_plan_id": workoutPlan.value?.id,
+          "start_time": DateFormat("HH:mm:ss").format(workoutStartTime?.toUtc() ?? DateTime.now().toUtc()),
+          "end_time": DateFormat("HH:mm:ss").format(workoutEndTime?.toUtc() ?? DateTime.now().toUtc()),
+          "log_date": DateFormat("yyyy/MM/dd").format(workoutEndTime?.toUtc() ?? DateTime.now()),
+          "log_data": data,
         },
         start: false
       );
@@ -364,7 +594,6 @@ class WorkoutPlanController extends GetxController {
             message: "Success 👏, Workout Time saved",
           ),
         );
-        workoutExercise = null;
         return true;
       }
     } catch (error, stackTrace) {
@@ -420,4 +649,46 @@ class WorkoutPlanController extends GetxController {
       return null;
     }
   }
+}
+
+
+class WorkoutFilter {
+  final String duration;
+  final String muscleGroup;
+  final String level;
+  final Map<int, String> muscle;
+  final String goal;
+  final List<Muscle> muscleList;
+
+  WorkoutFilter({
+    required this.duration,
+    required this.muscleGroup,
+    required this.level,
+    required this.muscle,
+    required this.goal,
+    required this.muscleList,
+  });
+
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is WorkoutFilter &&
+        other.duration == duration &&
+        other.muscleGroup == muscleGroup &&
+        other.level == level &&
+        mapEquals(other.muscle, muscle) &&
+        other.goal == goal &&
+        listEquals(other.muscleList, muscleList);
+  }
+
+  @override
+  int get hashCode =>
+      duration.hashCode ^
+      muscleGroup.hashCode ^
+      level.hashCode ^
+      muscle.hashCode ^
+      goal.hashCode ^
+      muscleList.hashCode;
 }

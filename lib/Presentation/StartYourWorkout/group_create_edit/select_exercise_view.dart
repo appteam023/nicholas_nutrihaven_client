@@ -26,9 +26,10 @@ class SelectExerciseView extends StatelessWidget {
         init: Get.find<WorkoutPlanController>(),
         initState: (state) {
           WidgetsBinding.instance.addPostFrameCallback((_) async {
-            state.controller?.fetchExercises(
-              muscleId: state.controller?.selectedMuscle.value?.id
-            );
+            if (state.controller?.addNewExerciseData.value == null || state.controller?.addNewExerciseData.value?.exercises == null
+                && (state.controller?.addNewExerciseData.value!.exercises!.isEmpty ?? true)) {
+              state.controller?.fetchAllExercises();
+            }
           });
         },
         builder: (controller) {
@@ -39,11 +40,11 @@ class SelectExerciseView extends StatelessWidget {
               appBar: CustomAppBar(
                 title: "Select Exercises",
                 actionWidget: Visibility(
-                  visible: controller.exerciseData.value != null && controller.exerciseData.value?.total != null,
+                  visible: controller.addNewExerciseData.value != null && controller.addNewExerciseData.value?.total != null,
                   child: Padding(
                     padding: const EdgeInsets.only(right: 12.0),
                     child: Text(
-                      "${controller.selectedExercises.length}/${controller.exerciseData.value?.total}",
+                      "${controller.selectedExercises.length}/${controller.addNewExerciseData.value?.total}",
                       style: context.titleLarge,
                     ),
                   ),
@@ -61,7 +62,7 @@ class SelectExerciseView extends StatelessWidget {
                               debugPrint("At the top");
                             } else {
                               debugPrint("At the bottom");
-                              controller.fetchExercises(muscleId: controller.selectedMuscle.value?.id);
+                              controller.fetchAllExercises();
                             }
                           }
                         }
@@ -70,8 +71,8 @@ class SelectExerciseView extends StatelessWidget {
                     },
                     child: RefreshIndicator(
                       onRefresh: () async {
-                        return await controller.fetchExercises(
-                          forceReload: true, muscleId: controller.selectedMuscle.value?.id
+                        return await controller.fetchAllExercises(
+                          forceReload: true,
                         );
                       },
                       child: CustomScrollView(
@@ -92,7 +93,7 @@ class SelectExerciseView extends StatelessWidget {
                                       Padding(
                                         padding: const EdgeInsets.only(bottom: 14.0),
                                         child: Text(
-                                          "${controller.selectedMuscle.value?.name} Exercises",
+                                          "Exercises",
                                           style: context.headlineSmall!.copyWith(color: primary),
                                         ),
                                       ),
@@ -100,19 +101,19 @@ class SelectExerciseView extends StatelessWidget {
                                   ),
                                 ),
                                 GetBuilder<WorkoutPlanController>(
-                                  builder: (controller) => controller.exerciseData.value?.exercises?.isNotEmpty ?? false ?
+                                  builder: (controller) => controller.addNewExerciseData.value?.exercises?.isNotEmpty ?? false ?
                                   SliverList.builder(
-                                    itemCount: controller.exerciseData.value?.exercises?.length,
+                                    itemCount: controller.addNewExerciseData.value?.exercises?.length,
                                     itemBuilder: (context, index) {
-                                      final element = controller.exerciseData.value?.exercises?[index];
+                                      final element = controller.addNewExerciseData.value?.exercises?[index];
                                       return Padding(
                                         padding: const EdgeInsets.symmetric(vertical: 12.0),
                                         child: InkWell(
                                           onTap: () {
-                                            if (controller.selectedExercises.contains(element?.id)) {
-                                              controller.selectedExercises.remove(element?.id);
+                                            if (controller.selectedExercises.any((e) => e.id == element?.id)) {
+                                              controller.selectedExercises.removeWhere((e) => e.id == element?.id);
                                             } else if (element != null && element.id != null) {
-                                              controller.selectedExercises.add(element.id!);
+                                              controller.selectedExercises.add(element);
                                             }
                                             controller.update();
                                           },
@@ -123,7 +124,7 @@ class SelectExerciseView extends StatelessWidget {
                                               Container(
                                                 decoration: BoxDecoration(
                                                   borderRadius: BorderRadius.circular(
-                                                    controller.selectedExercises.contains(element?.id) ? 10 : 0
+                                                    controller.selectedExercises.any((e) => e.id == element?.id) ? 10 : 0
                                                   ),
                                                 ),
                                                 child: Stack(
@@ -138,7 +139,7 @@ class SelectExerciseView extends StatelessWidget {
                                                         width: 100,
                                                       ),
                                                     ),
-                                                    controller.selectedExercises.contains(element?.id) ? Container(
+                                                    controller.selectedExercises.any((e) => e.id == element?.id) ? Container(
                                                       decoration: BoxDecoration(
                                                           borderRadius: BorderRadius.circular(10),
                                                           color: yellow.withValues(alpha: 0.5)
@@ -204,24 +205,23 @@ class SelectExerciseView extends StatelessWidget {
               floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
               floatingActionButton: controller.selectedExercises.isEmpty ? null : CustomButton(
                 margin: EdgeInsets.symmetric(horizontal: horizontalPadding),
-                title: isEditing
-                    ? "Edit Workout Group"
-                    : "Create Workout Group",
+                title: "Continue",
                 onTap: () {
-                  if (!isEditing) {
-                    controller.createGroup(
-                      context, selectedExercises: controller.selectedExercises
-                    );
-                  } else {
-                    controller.editGroup(
-                      context, groupID: controller.groupDetails.value?.id,
-                      groupName: controller.groupDetails.value?.title,
-                      selectedExercises: controller.selectedExercises,
-                      onSuccess: () {
-                        Get.back();
-                      }
-                    );
-                  }
+                  Get.back();
+                  // if (!isEditing) {
+                  //   controller.createGroup(
+                  //     context, selectedExercises: controller.selectedExercises
+                  //   );
+                  // } else {
+                  //   controller.editGroup(
+                  //     context, groupID: controller.groupDetails.value?.id,
+                  //     groupName: controller.groupDetails.value?.title,
+                  //     selectedExercises: controller.selectedExercises,
+                  //     onSuccess: () {
+                  //       Get.back();
+                  //     }
+                  //   );
+                  // }
                 },
               ),
             ),

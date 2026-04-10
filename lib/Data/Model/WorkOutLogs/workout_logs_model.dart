@@ -1,3 +1,5 @@
+import '../WorkoutPlan/custom_workout_plan_model.dart';
+
 class WorkoutLogsModel {
   bool? status;
   String? message;
@@ -74,40 +76,31 @@ class WorkOutData {
 class WorkoutLogData {
   int? id;
   int? memberId;
-  int? groupExerciseId;
-  int? masterExerciseId;
+  int? workoutPlanId;
   String? startTime;
   String? endTime;
   String? logDate;
-  String? createdAt;
-  String? updatedAt;
-  MasterExercise? masterExercise;
+  CustomExerciseData? logData;
 
   WorkoutLogData({
     this.id,
     this.memberId,
-    this.groupExerciseId,
-    this.masterExerciseId,
+    this.workoutPlanId,
     this.startTime,
     this.endTime,
     this.logDate,
-    this.createdAt,
-    this.updatedAt,
-    this.masterExercise,
+    this.logData,
   });
 
   WorkoutLogData.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     memberId = json['member_id'];
-    groupExerciseId = json['group_exercise_id'];
-    masterExerciseId = json['master_exercise_id'];
+    workoutPlanId = json['workout_plan_id'];
     startTime = json['start_time'];
     endTime = json['end_time'];
     logDate = json['log_date'];
-    createdAt = json['created_at'];
-    updatedAt = json['updated_at'];
-    masterExercise = json['master_exercise'] != null
-        ? MasterExercise.fromJson(json['master_exercise'])
+    logData = json['log_data'] != null
+        ? CustomExerciseData.fromJson(json['log_data'])
         : null;
   }
 
@@ -115,19 +108,33 @@ class WorkoutLogData {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
     data['member_id'] = memberId;
-    data['group_exercise_id'] = groupExerciseId;
-    data['master_exercise_id'] = masterExerciseId;
+    data['workout_plan_id'] = workoutPlanId;
     data['start_time'] = startTime;
     data['end_time'] = endTime;
     data['log_date'] = logDate;
-    data['created_at'] = createdAt;
-    data['updated_at'] = updatedAt;
-    if (masterExercise != null) {
-      data['master_exercise'] = masterExercise!.toJson();
+    if (logData != null) {
+      data['log_data'] = logData!.toJson();
     }
     return data;
   }
 }
+
+class LogData {
+  int? defaultSets;
+
+  LogData({this.defaultSets});
+
+  LogData.fromJson(Map<String, dynamic> json) {
+    defaultSets = json['default_sets'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['default_sets'] = defaultSets;
+    return data;
+  }
+}
+
 
 class MasterExercise {
   int? id;

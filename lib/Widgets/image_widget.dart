@@ -34,7 +34,7 @@ class ImageWidget extends StatelessWidget {
         fit: fit ?? BoxFit.cover,
         scale: scale ?? 1,
         errorBuilder: (context, error, stackTrace) {
-          debugPrint('error in image widget: \n $error + $imageUrl}');
+          // debugPrint('error in image widget: \n $error + $imageUrl}');
           return SizedBox(
             height: height,
             width: width,

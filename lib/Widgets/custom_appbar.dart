@@ -48,6 +48,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           visualDensity: VisualDensity.comfortable,
           backgroundColor: WidgetStateProperty.all(secondary.withValues(alpha: 0.1)),
           foregroundColor: WidgetStateProperty.all(secondary),
+          overlayColor: WidgetStateProperty.all(Colors.white12),
           shape: WidgetStateProperty.all(CircleBorder())
         ),
         onPressed: () {

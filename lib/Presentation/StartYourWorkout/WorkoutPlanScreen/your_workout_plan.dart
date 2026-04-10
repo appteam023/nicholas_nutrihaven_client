@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:nicholas_nutrihaven/Config/AppRoutes/routes_imports.dart';
 import 'package:nicholas_nutrihaven/Data/Model/muscleModel/get_muscle_model.dart';
-import 'package:nicholas_nutrihaven/Data/response/status.dart';
 import 'package:nicholas_nutrihaven/Presentation/StartYourWorkout/WorkoutPlanScreen/widgets/muscle_card_widget.dart';
 import 'package:nicholas_nutrihaven/Presentation/StartYourWorkout/WorkoutPlanScreen/widgets/options_bottom_sheet.dart';
 import 'package:nicholas_nutrihaven/Presentation/StartYourWorkout/controller/workout_plan_controller.dart';
@@ -13,13 +13,13 @@ import 'package:nicholas_nutrihaven/Utils/Const/asset_const.dart';
 import 'package:nicholas_nutrihaven/Utils/Const/color_const.dart';
 import 'package:nicholas_nutrihaven/Utils/Extensions/text_extension.dart';
 import 'package:nicholas_nutrihaven/Widgets/custom_appbar.dart';
-import 'package:nicholas_nutrihaven/Widgets/custom_button.dart';
-import 'package:nicholas_nutrihaven/Widgets/dropdown_widget.dart';
-import 'package:skeletonizer/skeletonizer.dart';
 
+import '../../../Data/DataSources/remote/api_constant.dart';
+import '../../../Widgets/custom_button.dart';
+import '../../../Widgets/custom_dropdown_widget.dart';
+import '../../../Widgets/image_widget.dart';
 import '../../../Widgets/loader_widget.dart';
-import '../group_details_view/group_details_view.dart';
-import 'workout_controller.dart';
+import 'saved_workout_list_view.dart';
 
 class WorkoutPlan extends StatefulWidget {
   const WorkoutPlan({super.key});
@@ -29,83 +29,7 @@ class WorkoutPlan extends StatefulWidget {
 }
 
 class _WorkoutPlanState extends State<WorkoutPlan> {
-  final int selectedTabIndex = 0;
-  bool _isStartTimer = false;
-  final WorkoutPlanController _controller = Get.put(WorkoutPlanController());
 
-  final List<List<String>> _tabTitles = [
-    ['1hr', '2hr', '3hr'],
-    ['Beginner', 'Intermediate', 'Expert'],
-    ['Fresh Muscles'],
-    ['All Exercises'],
-    ['Bodybuilding'],
-  ];
-
-  final List<Map<String, String>> _exerciseList = [
-    {
-      'bg_image': ImageConst.hipThrust,
-      'fg_image': ImageConst.bicepbg,
-      'title': 'Dumbbell Bicep Curl',
-      'subtitle': '4 SETS • 10 REPS • 8 KG',
-    },
-    {
-      'bg_image': ImageConst.hipThrust,
-      'fg_image': ImageConst.bicep,
-      'title': 'Hip Thrust',
-      'subtitle': '4 SETS • 4 REPS',
-    },
-    {
-      'bg_image': ImageConst.hipThrust,
-      'fg_image': ImageConst.bicep,
-      'title': 'Hip Thrust',
-      'subtitle': '4 SETS • 4 REPS',
-    },
-    {
-      'bg_image': ImageConst.hipThrust,
-      'fg_image': ImageConst.bicep,
-      'title': 'Hip Thrust',
-      'subtitle': '4 SETS • 4 REPS',
-    },
-    {
-      'bg_image': ImageConst.hipThrust,
-      'fg_image': ImageConst.bicep,
-      'title': 'Hip Thrust',
-      'subtitle': '4 SETS • 4 REPS',
-    },
-    {
-      'bg_image': ImageConst.hipThrust,
-      'fg_image': ImageConst.bicep,
-      'title': 'Hip Thrust',
-      'subtitle': '4 SETS • 4 REPS',
-    },
-    {
-      'bg_image': ImageConst.hipThrust,
-      'fg_image': ImageConst.bicep,
-      'title': 'Hip Thrust',
-      'subtitle': '4 SETS • 4 REPS',
-    },
-    {
-      'bg_image': ImageConst.hipThrust,
-      'fg_image': ImageConst.bicep,
-      'title': 'Hip Thrust',
-      'subtitle': '4 SETS • 4 REPS',
-    },
-    {
-      'bg_image': ImageConst.hipThrust,
-      'fg_image': ImageConst.bicep,
-      'title': 'Hip Thrust',
-      'subtitle': '4 SETS • 4 REPS',
-    },
-  ];
-
-  final List<Muscle> _fakeMuscles = List.generate(
-    5,
-    (index) => Muscle(
-      id: index,
-      name: 'Muscle $index',
-      muscleImage: ImageConst.bicep,
-    ),
-  );
 
   @override
   Widget build(BuildContext context) {
@@ -129,7 +53,7 @@ class _WorkoutPlanState extends State<WorkoutPlan> {
                             debugPrint("At the top");
                           } else {
                             debugPrint("At the bottom");
-                            controller.fetchGroups();
+                            controller.fetchExercises(filter: controller.selectedFilter.value);
                           }
                         }
                       }
@@ -138,137 +62,13 @@ class _WorkoutPlanState extends State<WorkoutPlan> {
                   },
                   child: RefreshIndicator(
                     onRefresh: () async {
-                      await Future.delayed(Duration(seconds: 2));
-                      return await Future.value();
+                      return await controller.fetchExercises(forceReload: true, filter: controller.selectedFilter.value);
                     },
                     child: CustomScrollView(
                       slivers: [
-                        if (_isStartTimer)
-                          _buildTimerSection()
-                        else
-                          _buildFilterAndMusclesSection(),
-                        SliverFillRemaining(
-                          child: controller.groupData.value != null && controller.groupData.value!.groups!.isNotEmpty ?
-                          ListView.builder(
-                            padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-                            itemCount: controller.groupData.value!.groups!.length,
-                            itemBuilder: (context, index) {
-                              var element = controller.groupData.value!.groups![index];
-                              return Slidable(
-                                endActionPane: ActionPane(
-                                  extentRatio: 0.3,
-                                  motion: const ScrollMotion(),
-                                  children: [
-                                    SlidableAction(
-                                      onPressed: (ctx) {
-                                        controller.deleteGroup(context, groupID: element.id);
-                                      },
-                                      icon: CupertinoIcons.delete,
-                                      label: 'Delete',
-                                      foregroundColor: Colors.white,
-                                      backgroundColor: Colors.pinkAccent,
-                                      spacing: 5,
-                                    ),
-                                  ],
-                                ),
-                                child: InkWell(
-                                  onTap: () {
-                                    controller.getGroupDetails(groupID: element.id);
-                                  },
-                                  child: Padding(
-                                    padding: EdgeInsets.only(bottom: 30.h),
-                                    child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      children: [
-                                        Stack(
-                                          children: [
-                                            Image.asset(
-                                              ImageConst.signIn2,
-                                              width: 70.w,
-                                              height: 100.h,
-                                              fit: BoxFit.contain,
-                                            ),
-                                            Positioned(
-                                              bottom: -10.h,
-                                              right: -10.w,
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  borderRadius: BorderRadius.circular(10.r),
-                                                  color: primary,
-                                                ),
-                                                child: Image.asset(
-                                                  ImageConst.bicep,
-                                                  height: 40.h,
-                                                  width: 40.h,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        SizedBox(width: 20.w),
-                                        Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              "${element.title}",
-                                              style: context.titleMedium!.copyWith(color: primary),
-                                            ),
-                                            Text(
-                                              "No of exercises: ${element.groupExercisesCount}",
-                                              style: context.bodySmall!.copyWith(color: grey),
-                                            ),
-                                          ],
-                                        ),
-                                        const Spacer(),
-                                        IconButton(
-                                            onPressed: () {
-                                              showModalBottomSheet<void>(
-                                                context: context,
-                                                sheetAnimationStyle: AnimationStyle(
-                                                  duration: const Duration(milliseconds: 500),
-                                                  reverseDuration: const Duration(milliseconds: 300),
-                                                ),
-                                                builder: (BuildContext context) {
-                                                  return CustomOptionsBottomSheet(
-                                                    options: [
-                                                      CustomOptionsBottomSheet.buildBottomSheetItem(
-                                                        Icons.edit, "Edit Group",
-                                                        onTap: () {
-                                                          Get.back();
-                                                          controller.editGroup(
-                                                            context,
-                                                            groupID: controller.groupDetails.value?.id,
-                                                            groupName: controller.groupDetails.value?.title,
-                                                            selectedExercises: controller.groupDetails.value?.groupExercises?.map(
-                                                                (element) => element.masterExerciseId!).toList() ?? []
-                                                          );
-                                                        }
-                                                      ),
-                                                    ]
-                                                  );
-                                                },
-                                              );
-                                            },
-                                            icon: Icon(Icons.more_vert)
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }
-                          ) : Center(
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 30.0),
-                              child: Text(
-                                'No Exercise Group Found',
-                                style: context.bodyLarge?.copyWith(
-                                  fontSize: 18
-                                ),
-                              ),
-                            ),
-                          ),
-                        )
+                        _buildFilterAndMusclesSection(),
+                        _buildExerciseList(),
+
                         // _buildExercisesSection(),
                         // _buildExerciseList(),
                       ],
@@ -280,9 +80,16 @@ class _WorkoutPlanState extends State<WorkoutPlan> {
             floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
             floatingActionButton: CustomButton(
               margin: EdgeInsets.symmetric(horizontal: horizontalPadding),
-              title: "Create new workout group",
+              title: "Start Workout",
               onTap: () {
-                Get.toNamed(AppRoutes.selectMuscle);
+                if (listEquals(controller.selectedSavedWorkout?.exerciseData?.exercises, controller.exerciseData.value?.exercises) &&
+                    controller.isSavedWorkOutSelected) {
+                  controller.navigateToStartWorkout(controller.selectedSavedWorkout);
+                } else {
+                  controller.createWorkoutPlan(
+                    context, listOfExercises: controller.exerciseData.value?.exercises ?? []
+                  );
+                }
               },
             ),
           ),
@@ -294,14 +101,26 @@ class _WorkoutPlanState extends State<WorkoutPlan> {
   CustomAppBar _buildAppBar() {
     return CustomAppBar(
       title: 'Your Workout Plan',
-      // actionImage: InkWell(
-      //   onTap: () => _showBottomSheet(context),
-      //   child: const Icon(
-      //     Icons.more_vert_outlined,
-      //     color: Colors.white,
-      //   ),
-      // ),
-      // actionImageBG: secondary.withValues(alpha: 0.1),
+      actionWidget: Padding(
+        padding: const EdgeInsets.only(right: 6.0),
+        child: IconButton(
+          style: ButtonStyle(
+            padding: WidgetStateProperty.all<EdgeInsetsGeometry>(EdgeInsets.all(12)),
+            visualDensity: VisualDensity.comfortable,
+            backgroundColor: WidgetStateProperty.all(secondary.withValues(alpha: 0.1)),
+            overlayColor: WidgetStateProperty.all(Colors.white12),
+            shape: WidgetStateProperty.all(CircleBorder())
+          ),
+          onPressed: () {
+            _showBottomSheet(context);
+          },
+          icon: Icon(
+            Icons.more_vert_outlined,
+            size: 30,
+            color: Colors.white,
+          ),
+        ),
+      ),
     );
   }
 
@@ -313,80 +132,20 @@ class _WorkoutPlanState extends State<WorkoutPlan> {
         reverseDuration: const Duration(milliseconds: 300),
       ),
       builder: (BuildContext context) {
-        return OptionsBottomSheet();
+        return OptionsBottomSheet(
+          onCreateWorkoutTap: () {
+            Get.back();
+            Get.find<WorkoutPlanController>().createWorkoutPlan(
+              context, listOfExercises: Get.find<WorkoutPlanController>().exerciseData.value?.exercises ?? [],
+              saveWorkout: true,
+            );
+          },
+          onSavedWorkoutTap: () {
+            Get.back();
+            Get.to(()=> SavedWorkoutListView());
+          },
+        );
       },
-    );
-  }
-
-  SliverToBoxAdapter _buildTimerSection() {
-    return SliverToBoxAdapter(
-      child: GetBuilder<WorkOutController>(
-        init: Get.isRegistered<WorkOutController>() ?
-          Get.find<WorkOutController>() : WorkOutController(),
-        initState: (state) {
-          // state.controller?.startTimer();
-        },
-        builder: (controller) {
-          return Container(
-            margin: EdgeInsets.only(top: verticalPadding * 2),
-            padding: EdgeInsets.all(horizontalPadding * 2),
-            decoration: BoxDecoration(
-              color: darkTheme,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    if (controller.isRunning) {
-                      controller.pauseTimer();
-                    } else {
-                      controller.startTimer();
-                    }
-                  },
-                  child: _buildTimerAvatar(controller.isRunning)
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-                  child: Text(
-                    controller.formatTime(controller.secondsElapsed),
-                    style: context.headlineLarge!
-                        .copyWith(fontWeight: FontWeight.w500),
-                  ),
-                ),
-                const Spacer(),
-                GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _isStartTimer = false;
-                    });
-                    controller.resetTimer();
-                  },
-                  child: CircleAvatar(
-                    backgroundColor: yellowText,
-                    child: const Icon(Icons.stop, color: Colors.white),
-                  ),
-                ),
-              ],
-            ),
-          );
-        }
-      ),
-    );
-  }
-
-  Widget _buildTimerAvatar(bool isRunning) {
-    return CircleAvatar(
-      backgroundColor: isRunning ? Colors.red : Colors.yellow,
-      radius: 16.r,
-      child: CircleAvatar(
-        radius: 14.r,
-        backgroundColor: darkTheme,
-        child: isRunning ? CircleAvatar(
-          radius: 10.r,
-          backgroundColor: Colors.red,
-        ) : Icon(Icons.play_arrow, color: Colors.yellow,),
-      ),
     );
   }
 
@@ -396,42 +155,100 @@ class _WorkoutPlanState extends State<WorkoutPlan> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(height: 20.h),
-          // _buildFilterTabs(),
-          // _buildMusclesHeader(),
-          // _buildMusclesList(),
+          _buildFilterTabs(),
+          _buildMusclesHeader(),
+          _buildMusclesList(),
+          _buildExercisesSection(),
         ],
       ),
     );
   }
 
   Widget _buildFilterTabs() {
+    final controller = Get.find<WorkoutPlanController>();
     return Container(
       color: Colors.white,
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
-          children: _tabTitles
-              .asMap()
-              .entries
-              .map((entry) => DropdownButtonWidget(list: entry.value))
-              .toList(),
+          children: [
+            CustomDropdownWidget<String>(
+              dropdownItems: controller.filterDuration,
+              onChanged: (val) {
+                if (val != null && val != controller.selectedFilter.value.duration) {
+                  controller.updateFilter(duration: val);
+                }
+              },
+              selectedValue: controller.selectedFilter.value.duration,
+            ),
+            CustomDropdownWidget<String>(
+              dropdownItems: controller.filterLevel,
+              onChanged: (val) {
+                if (val != null && val != controller.selectedFilter.value.level) {
+                  controller.updateFilter(level: val);
+                }
+              },
+              selectedValue: controller.selectedFilter.value.level,
+            ),
+            CustomDropdownWidget<String>(
+              dropdownItems: controller.filterMuscleGroup,
+              onChanged: (val) {
+                if (val != null && val != controller.selectedFilter.value.muscleGroup) {
+                  controller.updateFilter(muscleGroup: val);
+                }
+              },
+              selectedValue: controller.selectedFilter.value.muscleGroup,
+            ),
+            CustomDropdownWidget<Map<int, String>>(
+              dropdownItems: controller.filterMuscle,
+              onChanged: (val) {
+                if (val != null && val.isNotEmpty && controller.selectedFilter.value.muscle.isNotEmpty &&
+                    val.keys.first != controller.selectedFilter.value.muscle.keys.first) {
+                  controller.updateFilter(muscle: val);
+                } else if (val != null && val.isEmpty && controller.selectedFilter.value.muscle.isEmpty) {
+                  controller.updateFilter(muscle: val);
+                }
+              },
+              selectedValue: Map<int, String>.from(controller.selectedFilter.value.muscle),
+            ),
+            CustomDropdownWidget<String>(
+              dropdownItems: controller.filterGoal,
+              onChanged: (val) {
+                if (val != null && val != controller.selectedFilter.value.goal) {
+                  controller.updateFilter(goal: val);
+                }
+              },
+              selectedValue: controller.selectedFilter.value.goal,
+            ),
+          ]
+          // _tabTitles
+          //     .asMap()
+          //     .entries
+          //     .map((entry) => DropdownButtonWidget(list: entry.value))
+          //     .toList(),
         ),
       ),
     );
   }
 
   Widget _buildMusclesHeader() {
+    final controller = Get.find<WorkoutPlanController>();
     return Padding(
       padding: EdgeInsets.symmetric(vertical: verticalPadding),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            '4 Targeted Muscles',
+            '${controller.selectedMuscle.length} Targeted Muscles',
             style: context.headlineSmall!.copyWith(color: primary),
           ),
           TextButton(
-            onPressed: () => Get.toNamed(AppRoutes.addNewMuscle),
+            onPressed: () async {
+              await Get.toNamed(AppRoutes.selectMuscle);
+              final newItems = [...controller.selectedMuscle];
+              if (listEquals(controller.selectedFilter.value.muscleList, newItems)) return;
+              controller.updateFilter(muscleList: [...newItems]);
+            },
             child: const Text('Add New Muscles'),
           ),
         ],
@@ -441,43 +258,22 @@ class _WorkoutPlanState extends State<WorkoutPlan> {
 
   Widget _buildMusclesList() {
     return Obx(() {
-      final response = _controller.getMuscleResponse.value;
-      switch (response.status) {
-        case Status.INITIAL:
-          return const SizedBox.shrink();
-        case Status.LOADING:
-          return SizedBox(
-            height: 90.h,
-            child: Skeletonizer(
-              enabled: true,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: _fakeMuscles.length,
-                itemBuilder: (context, index) =>
-                    _buildMuscleCard(index, _fakeMuscles[index]),
-                separatorBuilder: (context, index) => SizedBox(width: 7.w),
-              ),
-            ),
-          );
-        case Status.COMPLETED:
-          final muscles = response.response?.data?.muscles ?? [];
+      final response = Get.find<WorkoutPlanController>().selectedMuscle.length;
+      switch (response) {
+        case 0:
+          return const SizedBox(height: 10,);
+
+        default:
           return SizedBox(
             height: 90.h,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
-              itemCount: muscles.length,
+              itemCount: Get.find<WorkoutPlanController>().selectedMuscle.length,
               itemBuilder: (context, index) =>
-                  _buildMuscleCard(index, muscles[index]),
+                  _buildMuscleCard(index, Get.find<WorkoutPlanController>().selectedMuscle[index]),
               separatorBuilder: (context, index) => SizedBox(width: 7.w),
             ),
           );
-        case Status.ERROR:
-          return SizedBox(
-            height: 90.h,
-            child: Center(child: Text('Error: ${response.message}')),
-          );
-        default:
-          return const SizedBox.shrink();
       }
     });
   }
@@ -485,56 +281,102 @@ class _WorkoutPlanState extends State<WorkoutPlan> {
   Widget _buildMuscleCard(int index, Muscle muscle) {
     return MuscleCardWidget(
       muscleName: muscle.name ?? 'Unknown',
-      imageUrl: muscle.muscleImage ?? ImageConst.bicep,
+      imageUrl: muscle.muscleImage != null ?
+      "${ApiConstants.baseUrl}${muscle.muscleImage}"  : ImageConst.abs,
     );
   }
 
-  SliverToBoxAdapter _buildExercisesSection() {
-    return SliverToBoxAdapter(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: EdgeInsets.only(top: verticalPadding),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  '8 Exercises',
-                  style: context.headlineSmall!.copyWith(color: primary),
+  Widget _buildExercisesSection() {
+    return GetBuilder<WorkoutPlanController>(
+      id: "exercise-list",
+      builder: (controller) {
+        return SizedBox(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: EdgeInsets.only(top: verticalPadding),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        controller.exerciseData.value?.total != null ?
+                        '${controller.exerciseData.value?.exercises?.length ?? ""}'
+                            ' / ${controller.exerciseData.value?.total ?? ""} Exercises'
+                        : "Exercises",
+                        style: context.headlineSmall!.copyWith(color: primary),
+                        maxLines: 2,
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () async {
+                        controller.selectedExercises.clear();
+                        await Get.toNamed(AppRoutes.selectExercise, arguments: {
+                          "isEditing": true,
+                        });
+                        if (controller.selectedExercises.isEmpty) return;
+                        controller.exerciseData.value!.exercises?.addAll(controller.selectedExercises);
+                        controller.update(["exercise-list"]);
+                      },
+                      child: const Text('Add New Exercises'),
+                    ),
+                  ],
                 ),
-                TextButton(
-                  onPressed: () => Get.toNamed(AppRoutes.addNewExercise),
-                  child: const Text('Add New Exercises'),
-                ),
-              ],
-            ),
+              ),
+              // const Text('Superset • 4 Rounds'),
+              SizedBox(height: 20.h),
+            ],
           ),
-          const Text('Superset • 4 Rounds'),
-          SizedBox(height: 20.h),
-        ],
-      ),
+        );
+      }
     );
   }
 
-  SliverList _buildExerciseList() {
-    return SliverList(
-      delegate: SliverChildBuilderDelegate(
-        (context, index) => _buildExerciseItem(index),
-        childCount: _exerciseList.length,
+  Widget _buildExerciseList() {
+    final controller = Get.find<WorkoutPlanController>();
+    final isListEmpty = controller.exerciseData.value == null || (controller.exerciseData.value!.exercises?.isEmpty ?? false);
+    if(isListEmpty) {
+      return SliverToBoxAdapter(
+        child: Center(
+          child: Text(
+            "No Exercises Found",
+            style: context.headlineSmall!.copyWith(color: primary),
+          ),
+        ),
+      );
+    }
+    return GetBuilder<WorkoutPlanController>(
+        id: "exercise-list",
+        builder: (controller)=> SliverList(
+        delegate: SliverChildBuilderDelegate(
+          (context, index) => _buildExerciseItem(index),
+          childCount: controller.exerciseData.value!.exercises?.length,
+        ),
       ),
     );
   }
 
   Widget _buildExerciseItem(int index) {
+    final controller = Get.find<WorkoutPlanController>();
     return Slidable(
+      key: ValueKey(index),
       endActionPane: ActionPane(
         extentRatio: 0.6,
         motion: const ScrollMotion(),
         children: [
           SlidableAction(
-            onPressed: (context) {},
-            icon: Icons.swap_horiz,
+            onPressed: (context) async {
+              controller.selectedExercises.clear();
+              await Get.toNamed(AppRoutes.selectExercise, arguments: {
+                "isEditing": true,
+              });
+              if (controller.selectedExercises.isEmpty) return;
+              controller.exerciseData.value!.exercises?.removeAt(index);
+              controller.exerciseData.value!.exercises?.insertAll(index, controller.selectedExercises);
+              controller.update(["exercise-list"]);
+            },
+            icon: CupertinoIcons.repeat,
             label: 'Replace',
             backgroundColor: Colors.grey.shade200,
             borderRadius: BorderRadius.only(
@@ -544,26 +386,36 @@ class _WorkoutPlanState extends State<WorkoutPlan> {
             spacing: 5,
           ),
           SlidableAction(
-            onPressed: (context) {},
+            onPressed: (context) {
+              controller.exerciseData.value!.exercises?.removeWhere(
+                (e)=> e.id == controller.exerciseData.value!.exercises![index].id
+              );
+              // controller.exerciseData.value!.total = (controller.exerciseData.value!.total ?? 1) - 1;
+              controller.update(["exercise-list"]);
+            },
             icon: CupertinoIcons.delete,
             label: 'Delete',
             foregroundColor: Colors.white,
-            backgroundColor: Colors.pinkAccent,
+            backgroundColor: Color(0xFFD93E68),
             spacing: 5,
           ),
         ],
       ),
       child: InkWell(
-        onTap: () => Get.toNamed(AppRoutes.addRepSet),
+        onTap: () {
+          controller.selectedExercise.value = controller.exerciseData.value!.exercises![index];
+          Get.toNamed(AppRoutes.addRepSet);
+        },
         child: Padding(
           padding: EdgeInsets.only(bottom: 30.h),
           child: Row(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               _buildExerciseImage(index),
               SizedBox(width: 20.w),
-              _buildExerciseDetails(index),
-              const Spacer(),
+              Expanded(child: _buildExerciseDetails(index)),
               Icon(Icons.more_horiz, color: grey),
             ],
           ),
@@ -576,11 +428,15 @@ class _WorkoutPlanState extends State<WorkoutPlan> {
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        Image.asset(
-          _exerciseList[index]['bg_image']!,
-          width: 70.w,
-          height: 100.h,
-          fit: BoxFit.cover,
+        ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: ImageWidget(
+            isNetworkImage: true,
+            imageUrl: "${ApiConstants.baseUrl}"
+                "${Get.find<WorkoutPlanController>().exerciseData.value!.exercises![index].exerciseImage}",
+            height: 85,
+            width: 75,
+          ),
         ),
         Positioned(
           bottom: -10.h,
@@ -602,26 +458,35 @@ class _WorkoutPlanState extends State<WorkoutPlan> {
   }
 
   Widget _buildExerciseDetails(int index) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          _exerciseList[index]['title']!,
-          style: context.titleMedium!.copyWith(color: primary),
-        ),
-        Text(
-          _exerciseList[index]['subtitle']!,
-          style: context.bodySmall!.copyWith(color: grey),
-        ),
-      ],
+    return GetBuilder<WorkoutPlanController>(
+      builder: (controller)=> Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(
+            child: Text(
+              "${controller.exerciseData.value!.exercises![index].name?.capitalizeFirst}",
+              style: context.titleMedium!.copyWith(color: primary),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          if (controller.exerciseData.value!.exercises![index].defaultSets?.isNotEmpty ?? false)
+          Text(
+            "${controller.exerciseData.value!.exercises![index].defaultSets?.length }"
+                " SET(S) \u2022 ${controller.exerciseData.value!.exercises![index].defaultSets?.fold(0, (sum, e) => sum + (e.reps ?? 0))} REP(S)",
+            style: context.bodySmall!.copyWith(color: darkGrey),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildStartWorkoutButton() {
-    return CustomButton(
-      width: 1.sw - horizontalPadding,
-      title: 'Start Workout',
-      onTap: () => setState(() => _isStartTimer = true),
-    );
-  }
+  // Widget _buildStartWorkoutButton() {
+  //   return CustomButton(
+  //     width: 1.sw - horizontalPadding,
+  //     title: 'Start Workout',
+  //     onTap: () => setState(() => _isStartTimer = true),
+  //   );
+  // }
 }

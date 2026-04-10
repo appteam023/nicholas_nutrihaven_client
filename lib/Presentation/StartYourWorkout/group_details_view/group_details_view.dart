@@ -98,13 +98,13 @@ class GroupDetailsView extends StatelessWidget {
                                 Icons.edit, "Edit Group",
                                 onTap: () {
                                   Get.back();
-                                  controller.editGroup(
-                                    context,
-                                    groupID: controller.groupDetails.value?.id,
-                                    groupName: controller.groupDetails.value?.title,
-                                    selectedExercises: controller.groupDetails.value?.groupExercises?.map(
-                                        (element) => element.masterExerciseId!).toList() ?? []
-                                  );
+                                  // controller.editGroup(
+                                  //   context,
+                                  //   groupID: controller.groupDetails.value?.id,
+                                  //   groupName: controller.groupDetails.value?.title,
+                                  //   selectedExercises: controller.groupDetails.value?.groupExercises?.map(
+                                  //       (element) => element.masterExerciseId!).toList() ?? []
+                                  // );
                                 }
                               ),
                               CustomOptionsBottomSheet.buildBottomSheetItem(
@@ -255,9 +255,9 @@ class GroupDetailsView extends StatelessWidget {
                       Get.find<WorkoutPlanController>().isStartTimer.value = false;
                       //   _isStartTimer = false;
                       // });
-                      Get.find<WorkoutPlanController>().logEndWorkoutTime(context,
-                        controller.startTime?.add(Duration(seconds: controller.secondsElapsed))
-                      );
+                      // Get.find<WorkoutPlanController>().logEndWorkoutTime(context,
+                      //   controller.startTime?.add(Duration(seconds: controller.secondsElapsed))
+                      // );
                       controller.resetTimer();
                     },
                     child: CircleAvatar(
@@ -309,7 +309,8 @@ class CustomOptionsBottomSheet extends StatelessWidget {
           ...options.expand((widget) => [
             widget,
             _buildDivider(),
-          ]).toList()..removeLast()
+          ]).toList()..removeLast(),
+          SizedBox(height: 20),
         ],
       ),
     );

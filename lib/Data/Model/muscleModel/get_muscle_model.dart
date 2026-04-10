@@ -97,4 +97,24 @@ class Muscle {
     data['updated_at'] = updatedAt;
     return data;
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is Muscle &&
+        other.id == id &&
+        other.name == name &&
+        other.muscleImage == muscleImage &&
+        other.createdAt == createdAt &&
+        other.updatedAt == updatedAt;
+  }
+
+  @override
+  int get hashCode =>
+      id.hashCode ^
+      name.hashCode ^
+      muscleImage.hashCode ^
+      createdAt.hashCode ^
+      updatedAt.hashCode;
 }

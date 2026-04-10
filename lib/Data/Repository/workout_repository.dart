@@ -6,8 +6,9 @@ import 'package:dio/dio.dart';
 import '../DataSources/remote/network_api_service.dart';
 import '../Model/ExcerciseModel/get_exercise_model.dart';
 import '../Model/ExerciseGroup/group_details_model.dart';
-import '../Model/ExerciseGroup/group_model.dart';
+import '../Model/ExerciseGroup/saved_workout_model.dart';
 import '../Model/WorkOutLogs/workout_logs_model.dart';
+import '../Model/WorkoutPlan/custom_workout_plan_model.dart';
 import '../Model/muscleModel/get_muscle_model.dart';
 
 import '../DataSources/remote/api_endpoints.dart';
@@ -15,16 +16,16 @@ import '../DataSources/remote/api_endpoints.dart';
 class WorkOutRepository {
   final NetworkApiService _networkApiService = NetworkApiService();
 
-  Future<GroupModel?> getGroup({int pageNo = 1}) async {
+  Future<WorkoutModel?> getWorkoutPlan({int pageNo = 1}) async {
     try {
       var response = await _networkApiService.GetResponse(
-        url: ApiEndPointUrls.groupList,
+        url: ApiEndPointUrls.workoutPlanList,
         isTokenRequired: true,
         queryParameter: {
           "page": pageNo,
         },
       );
-      return GroupModel.fromJson(response);
+      return WorkoutModel.fromJson(response);
     } catch (e) {
       rethrow;
     }
@@ -37,6 +38,7 @@ class WorkOutRepository {
         isTokenRequired: true,
         queryParameter: {
           "page": pageNo,
+          "per_page": 20,
         },
       );
       return MuscleModel.fromJson(response);
@@ -45,15 +47,12 @@ class WorkOutRepository {
     }
   }
 
-  Future<ExerciseModel?> getExercise({int pageNo = 1, int? muscleId}) async {
+  Future<ExerciseModel?> getExercise({Map<String, dynamic>? queryParameter}) async {
     try {
       var response = await _networkApiService.GetResponse(
         url: ApiEndPointUrls.exerciseListByMuscle,
         isTokenRequired: true,
-        queryParameter: {
-          "muscle_group_id": muscleId,
-          "page": pageNo,
-        },
+        queryParameter: queryParameter,
       );
       return ExerciseModel.fromJson(response);
     } catch (e) {
@@ -69,48 +68,42 @@ class WorkOutRepository {
     return GroupDetailsModel.fromJson(response);
   }
 
-  Future<GroupDetailsModel?> createGroup({required String groupName, required List<int> exerciseIDs}) async {
+  Future<Map<String, dynamic>> createGroup({required Map<String, dynamic> data,}) async {
     try {
-
-      final formData = FormData.fromMap({
-        "title": groupName,
-        "exercises[]": exerciseIDs,
-      });
-
       // data.addAll(Map.fromEntries(exerciseIDs.mapIndexed((i,e) => MapEntry("exercises[]", e.toString()))));
       var response = await _networkApiService.PostResponse(
-        url: ApiEndPointUrls.groupCreate,
+        url: ApiEndPointUrls.workoutPlanCreate,
         isTokenRequired: true,
-        data: formData,
+        data: data,
       );
-      return GroupDetailsModel.fromJson(response);
+      return response ?? {};
     } catch (e) {
       rethrow;
     }
   }
 
-  Future<GroupDetailsModel?> updateGroup({required int? groupID, required String groupName, List<int>? exerciseIDs}) async {
+  Future<Map<String, dynamic>> updateGroup({required int? workoutID, required String workoutName, List<int>? exerciseIDs}) async {
     try {
 
       final formData = FormData.fromMap({
-        "title": groupName,
-        "exercises[]": exerciseIDs,
+        "name": workoutName,
+        // "exercises_data": exerciseIDs,
       });
       var response = await _networkApiService.PostResponse(
-        url: "${ApiEndPointUrls.groupUpdate}/$groupID",
+        url: "${ApiEndPointUrls.workoutPlanUpdate}/$workoutID",
         isTokenRequired: true,
         data: formData,
       );
-      return GroupDetailsModel.fromJson(response);
+      return response ?? {};
     } catch (e) {
       rethrow;
     }
   }
 
-  Future deleteGroup({required int? groupID}) async {
+  Future deleteGroup({required int? workoutID}) async {
     try {
       var response = await _networkApiService.PostResponse(
-        url: "${ApiEndPointUrls.groupDelete}/$groupID",
+        url: "${ApiEndPointUrls.workoutPlanDelete}/$workoutID",
         isTokenRequired: true,
         data: null
       );
