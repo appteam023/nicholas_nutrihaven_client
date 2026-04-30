@@ -52,7 +52,7 @@ class SignInController extends GetxController {
       try {
         debugPrint('logindata ====== $data');
         showLoader(true);
-        var value = await _authRepository.SigninApiRepo(data);
+        var value = await _authRepository.signInApiRepo(data);
           debugPrint("Calling Success ==> $value");
           debugPrint("Calling Success ==> ${value..runtimeType}");
           if (value.user != null) {
@@ -141,7 +141,6 @@ class SignInController extends GetxController {
                 TextFormField(
                   textAlign: TextAlign.start,
                   // maxLength: 40,
-                  scribbleEnabled: true,
 
                   decoration: InputDecoration(
                       labelText: "Email",

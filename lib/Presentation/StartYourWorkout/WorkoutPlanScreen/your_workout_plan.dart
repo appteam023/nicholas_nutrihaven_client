@@ -67,8 +67,15 @@ class _WorkoutPlanState extends State<WorkoutPlan> {
                     child: CustomScrollView(
                       slivers: [
                         _buildFilterAndMusclesSection(),
-                        _buildExerciseList(),
-
+                        GetBuilder<WorkoutPlanController>(
+                          id: "exercise-list",
+                          builder: (controller) {
+                            return _buildExerciseList();
+                          }
+                        ),
+                        SliverToBoxAdapter(
+                          child: SizedBox(height: 60,),
+                        )
                         // _buildExercisesSection(),
                         // _buildExerciseList(),
                       ],
@@ -190,22 +197,15 @@ class _WorkoutPlanState extends State<WorkoutPlan> {
               },
               selectedValue: controller.selectedFilter.value.level,
             ),
-            CustomDropdownWidget<String>(
-              dropdownItems: controller.filterMuscleGroup,
-              onChanged: (val) {
-                if (val != null && val != controller.selectedFilter.value.muscleGroup) {
-                  controller.updateFilter(muscleGroup: val);
-                }
-              },
-              selectedValue: controller.selectedFilter.value.muscleGroup,
-            ),
             CustomDropdownWidget<Map<int, String>>(
               dropdownItems: controller.filterMuscle,
-              onChanged: (val) {
+              onChanged: (val) async {
                 if (val != null && val.isNotEmpty && controller.selectedFilter.value.muscle.isNotEmpty &&
                     val.keys.first != controller.selectedFilter.value.muscle.keys.first) {
+                  await controller.fetchMuscles(forceReload: true, mainMuscle: val.values.first);
                   controller.updateFilter(muscle: val);
                 } else if (val != null && val.isEmpty && controller.selectedFilter.value.muscle.isEmpty) {
+                  await controller.fetchMuscles(forceReload: true, mainMuscle: val.values.first);
                   controller.updateFilter(muscle: val);
                 }
               },
@@ -218,6 +218,7 @@ class _WorkoutPlanState extends State<WorkoutPlan> {
                   controller.updateFilter(goal: val);
                 }
               },
+              hint: "Goals",
               selectedValue: controller.selectedFilter.value.goal,
             ),
           ]
@@ -257,8 +258,9 @@ class _WorkoutPlanState extends State<WorkoutPlan> {
   }
 
   Widget _buildMusclesList() {
+    final ctrl = Get.find<WorkoutPlanController>();
     return Obx(() {
-      final response = Get.find<WorkoutPlanController>().selectedMuscle.length;
+      final response = ctrl.selectedMuscle.length;
       switch (response) {
         case 0:
           return const SizedBox(height: 10,);
@@ -268,9 +270,14 @@ class _WorkoutPlanState extends State<WorkoutPlan> {
             height: 90.h,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
-              itemCount: Get.find<WorkoutPlanController>().selectedMuscle.length,
+              itemCount: ctrl.selectedMuscle.length,
               itemBuilder: (context, index) =>
-                  _buildMuscleCard(index, Get.find<WorkoutPlanController>().selectedMuscle[index]),
+                  _buildMuscleCard(
+                    index, ctrl.selectedMuscle[index], () {
+                      ctrl.selectedMuscle.removeAt(index);
+                      ctrl.fetchExercises(forceReload: true, filter: ctrl.selectedFilter.value);
+                    }
+                  ),
               separatorBuilder: (context, index) => SizedBox(width: 7.w),
             ),
           );
@@ -278,11 +285,12 @@ class _WorkoutPlanState extends State<WorkoutPlan> {
     });
   }
 
-  Widget _buildMuscleCard(int index, Muscle muscle) {
+  Widget _buildMuscleCard(int index, Muscle muscle, VoidCallback onRemove) {
     return MuscleCardWidget(
       muscleName: muscle.name ?? 'Unknown',
       imageUrl: muscle.muscleImage != null ?
       "${ApiConstants.baseUrl}${muscle.muscleImage}"  : ImageConst.abs,
+      onRemove: onRemove,
     );
   }
 
@@ -301,9 +309,9 @@ class _WorkoutPlanState extends State<WorkoutPlan> {
                   children: [
                     Flexible(
                       child: Text(
-                        controller.exerciseData.value?.total != null ?
-                        '${controller.exerciseData.value?.exercises?.length ?? ""}'
-                            ' / ${controller.exerciseData.value?.total ?? ""} Exercises'
+                        controller.exerciseData.value != null ?
+                        "${controller.exerciseData.value?.exercises?.length ?? ""}"
+                            " Exercises"
                         : "Exercises",
                         style: context.headlineSmall!.copyWith(color: primary),
                         maxLines: 2,
@@ -346,13 +354,10 @@ class _WorkoutPlanState extends State<WorkoutPlan> {
         ),
       );
     }
-    return GetBuilder<WorkoutPlanController>(
-        id: "exercise-list",
-        builder: (controller)=> SliverList(
-        delegate: SliverChildBuilderDelegate(
-          (context, index) => _buildExerciseItem(index),
-          childCount: controller.exerciseData.value!.exercises?.length,
-        ),
+    return SliverList(
+      delegate: SliverChildBuilderDelegate(
+        (context, index) => _buildExerciseItem(index),
+        childCount: controller.exerciseData.value!.exercises?.length,
       ),
     );
   }

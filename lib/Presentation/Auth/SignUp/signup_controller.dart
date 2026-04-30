@@ -1,16 +1,9 @@
-import 'dart:developer';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:nicholas_nutrihaven/Config/AppRoutes/routes_imports.dart';
-import 'package:nicholas_nutrihaven/Data/DataSources/remote/api_constant.dart';
-import '../../../Data/Repository/auth_repository.dart';
-import '../../../Utils/Const/asset_const.dart';
-import '../../../Utils/Const/color_const.dart';
 import '../../../Widgets/custom_snackbar.dart';
-import '../../../Widgets/loader_widget.dart';
 
 class SignupController extends GetxController {
   GlobalKey<FormState>? signUpFormKey;
@@ -45,6 +38,7 @@ class SignupController extends GetxController {
     confirmPass = TextEditingController(text: kDebugMode ? "john123" : "");
   }
 
+  @override
   void dispose() {
     emailController?.dispose();
     fullnameController?.dispose();
@@ -53,7 +47,6 @@ class SignupController extends GetxController {
     super.dispose();
   }
 
-  final AuthRepository _authRepository = AuthRepository();
 
   void signup() {
     if(emailController!.text.isEmpty || passController!.text.isEmpty || confirmPass!.text.isEmpty) {

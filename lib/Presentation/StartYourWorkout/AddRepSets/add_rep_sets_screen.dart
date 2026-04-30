@@ -9,6 +9,7 @@ import 'package:get/get.dart';
 import 'package:nicholas_nutrihaven/Utils/Extensions/text_extension.dart';
 import 'package:nicholas_nutrihaven/Widgets/custom_button.dart';
 
+import '../../../Config/AppRoutes/routes_imports.dart';
 import '../../../Data/Model/ExcerciseModel/get_exercise_model.dart';
 import '../../../Utils/Const/color_const.dart';
 import '../../../Widgets/custom_appbar.dart';
@@ -33,6 +34,26 @@ class AddRepSetsScreen extends StatelessWidget {
           backgroundColor: secondary,
           appBar: CustomAppBar(
             title: "${controller.selectedExercise.value?.name?.capitalizeFirst}",
+            actionWidget: Padding(
+              padding: const EdgeInsets.only(right: 6.0),
+              child: IconButton(
+                style: ButtonStyle(
+                  padding: WidgetStateProperty.all<EdgeInsetsGeometry>(EdgeInsets.all(14)),
+                  visualDensity: VisualDensity.comfortable,
+                  backgroundColor: WidgetStateProperty.all(secondary.withValues(alpha: 0.1)),
+                  overlayColor: WidgetStateProperty.all(Colors.white12),
+                  shape: WidgetStateProperty.all(CircleBorder())
+                ),
+                onPressed: () {
+                  Get.toNamed(AppRoutes.repWeightsSetting);
+                },
+                icon: Icon(
+                  Icons.settings,
+                  size: 24,
+                  color: Colors.white,
+                ),
+              ),
+            ),
             // actionImage: InkWell(
             //   onTap: () {
             //     Get.toNamed(AppRoutes.instructionVideo);
@@ -59,10 +80,12 @@ class AddRepSetsScreen extends StatelessWidget {
                         Expanded(flex: 1, child: Divider(color: grey)),
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: 8),
-                          child: Text(
-                            "${controller.selectedExercise.value?.defaultSets?.length} Sets",
-                            style: context.labelSmall!.copyWith(
-                                fontWeight: FontWeight.bold, color: darkTheme),
+                          child: GetBuilder<WorkoutPlanController>(
+                            builder: (controller) => Text(
+                              "${controller.selectedExercise.value?.defaultSets?.length} Set(s)",
+                              style: context.labelSmall!.copyWith(
+                                  fontWeight: FontWeight.bold, color: darkTheme),
+                            ),
                           ),
                         ),
                         Expanded(flex: 1, child: Divider(color: grey)),
@@ -205,8 +228,8 @@ class AddRepSetsScreen extends StatelessWidget {
                         controller.selectedExercise.value?.defaultSets?.add(
                           DefaultSets(
                             set: controller.selectedExercise.value?.defaultSets?.length ?? 0,
-                            reps: 2,
-                            weight: 2,
+                            reps: controller.globalReps.value,
+                            weight: controller.globalWeight.value,
                           ),
                         );
                         controller.update();

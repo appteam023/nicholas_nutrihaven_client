@@ -365,12 +365,17 @@ class CustomDropdownWidget<T> extends StatelessWidget {
           ),
           child: Row(
             children: [
+              if ((selectedValue == null || selectedValue.toString().isEmpty || selectedValue.toString() == "{}") && hint != null)
               Text(
-                selectedValue != null
-                    ? (selectedValue is Map && Map.from(selectedValue as Map).isNotEmpty)
+                hint!,
+                style: TextStyle(color: darkGrey),
+              ) else
+              Text(
+                selectedValue != null ?
+                  (selectedValue is Map && Map.from(selectedValue as Map).isNotEmpty)
                         ? Map.from(selectedValue as Map).values.first.toString()
                         : selectedValue.toString()
-                    : hint ?? "Select",
+                    : "Select",
                 style: TextStyle(color: black),
               ),
               const Icon(

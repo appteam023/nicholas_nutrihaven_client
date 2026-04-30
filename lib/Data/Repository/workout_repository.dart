@@ -8,7 +8,6 @@ import '../Model/ExcerciseModel/get_exercise_model.dart';
 import '../Model/ExerciseGroup/group_details_model.dart';
 import '../Model/ExerciseGroup/saved_workout_model.dart';
 import '../Model/WorkOutLogs/workout_logs_model.dart';
-import '../Model/WorkoutPlan/custom_workout_plan_model.dart';
 import '../Model/muscleModel/get_muscle_model.dart';
 
 import '../DataSources/remote/api_endpoints.dart';
@@ -31,12 +30,13 @@ class WorkOutRepository {
     }
   }
 
-  Future<MuscleModel?> getMuscle({int pageNo = 1}) async {
+  Future<MuscleModel?> getMuscle({int pageNo = 1, String? mainMuscle}) async {
     try {
       var response = await _networkApiService.GetResponse(
         url: ApiEndPointUrls.muscleList,
         isTokenRequired: true,
         queryParameter: {
+          if(mainMuscle != null) "targeted_muscles": mainMuscle,
           "page": pageNo,
           "per_page": 20,
         },

@@ -10,10 +10,12 @@ class MuscleCardWidget extends StatelessWidget {
     super.key,
     required this.muscleName,
     required this.imageUrl,
+    required this.onRemove,
   });
 
   final String muscleName;
   final String imageUrl;
+  final VoidCallback onRemove;
 
   @override
   Widget build(BuildContext context) {
@@ -74,6 +76,12 @@ class MuscleCardWidget extends StatelessWidget {
                 ),
               ],
             ),
+            Align(
+              alignment: Alignment.topRight,
+              child: CloseButton(
+                onPressed: onRemove,
+              ),
+            )
           ],
         ),
       ),

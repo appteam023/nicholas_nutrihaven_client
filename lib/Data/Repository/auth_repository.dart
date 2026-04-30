@@ -11,7 +11,7 @@ import '../Model/SignInModel/Signin_model.dart';
 class AuthRepository {
   final NetworkApiService _networkApiService = NetworkApiService();
 
-  Future<SignInModel> SignupApiRepo(Map<String, dynamic> data) async {
+  Future<SignInModel> signupApiRepo(Map<String, dynamic> data) async {
     try {
       dynamic response = await _networkApiService.PostResponse(
           url: ApiEndPointUrls.signUp, data: data, isTokenRequired: false);
@@ -22,7 +22,7 @@ class AuthRepository {
     }
   }
 
-  Future<SignInModel> SigninApiRepo(Map<String, dynamic> data) async {
+  Future<SignInModel> signInApiRepo(Map<String, dynamic> data) async {
     try {
       dynamic response = await _networkApiService.PostResponse(
           url: ApiEndPointUrls.signIn, data: data, isTokenRequired: false);
@@ -37,7 +37,7 @@ class AuthRepository {
     try {
       var response = await _networkApiService.PostResponse(
           data: data, url: ApiEndPointUrls.forgetPass, isTokenRequired: false);
-      print(response);
+      log(response.toString());
       return ForgetPasswordModel.fromJson(response);
     } catch (e) {
       rethrow;
@@ -50,7 +50,7 @@ class AuthRepository {
           data: data, url: ApiEndPointUrls.verifyCode, isTokenRequired: true);
       return compute(BaseApiModel.fromJson, response);
     } catch (e) {
-      print(e.toString());
+      log(e.toString());
       rethrow;
     }
   }
@@ -61,7 +61,7 @@ class AuthRepository {
           data: data,
           url: ApiEndPointUrls.resetPass + userId,
           isTokenRequired: false);
-      print("${ApiEndPointUrls.resetPass + userId}");
+      log(ApiEndPointUrls.resetPass + userId);
       return compute(BaseApiModel.fromJson, response);
     } catch (e) {
       rethrow;

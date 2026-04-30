@@ -8,6 +8,8 @@ const String localTokenKey = 'token';
 const String localRememberKey = 'remember';
 const String localWelcomeKey = 'welcomeKey';
 const String localFcmTokenKey = 'fcmTokenKey';
+const String localExerciseRepsKey = 'exerciseRepsKey';
+const String localExerciseWeightKey = 'exerciseWeightKey';
 
 /// GetStorage For Save User
 Future<bool> saveUser({required User user}) async {
@@ -108,4 +110,36 @@ Future<bool?> getWelcome() async {
   final storage = ApiConstants.storage;
   final welcomeKey = storage.read(localWelcomeKey) ?? false;
   return welcomeKey;
+}
+
+/// GetStorage For Save User Reps setting
+Future<bool> saveReps({required int reps}) async {
+  final storage = ApiConstants.storage;
+  storage.write(localExerciseRepsKey, reps);
+  debugPrint("saved reps ==> $reps");
+  return true;
+}
+
+/// GetStorage For Read User Reps setting
+int? getReps() {
+  final storage = ApiConstants.storage;
+  final reps = storage.read<int>(localExerciseRepsKey);
+  debugPrint("reps ==> $reps");
+  return reps;
+}
+
+/// GetStorage For Save User weight setting
+Future<bool> saveWeights({required int weight}) async {
+  final storage = ApiConstants.storage;
+  storage.write(localExerciseWeightKey, weight);
+  debugPrint("saved weight ==> $weight");
+  return true;
+}
+
+/// GetStorage For Read User weight setting
+int? getWeights() {
+  final storage = ApiConstants.storage;
+  final weight = storage.read<int>(localExerciseWeightKey);
+  debugPrint("weight ==> $weight");
+  return weight;
 }

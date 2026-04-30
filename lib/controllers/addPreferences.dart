@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:nicholas_nutrihaven/Config/AppRoutes/routes_imports.dart';
-import 'package:nicholas_nutrihaven/Data/Repository/addPreferenceRepository.dart';
 
 import '../Data/DataSources/remote/api_constant.dart';
 import '../Data/Repository/auth_repository.dart';
@@ -17,7 +16,7 @@ class AddpreferencesController extends GetxController {
   String? gender;
 
   int? age = 28;
-  int? weight = 54;
+  double? weight = 54.0;
   String weightUnit = "kg";
 
   String heighttUnit = "";
@@ -30,6 +29,10 @@ class AddpreferencesController extends GetxController {
   String exercisePlace = "";
   String exerciseEquipment = "";
 
+  List<String> weightUnits = [
+    "kg",
+    "lbs",
+  ];
   Map<int, String> goalData = {
     0: "weight_loss",
     1: "weight_gain",
@@ -72,7 +75,7 @@ class AddpreferencesController extends GetxController {
       log(data.toString());
       showLoader(true);
 
-      authRepository.SignupApiRepo(data).then((value) async {
+      authRepository.signupApiRepo(data).then((value) async {
         debugPrint("Calling Success ==> $value");
         debugPrint("Calling Success ==> ${value..runtimeType}");
         if (value.user != null) {
@@ -80,7 +83,7 @@ class AddpreferencesController extends GetxController {
           debugPrint("object => $value");
 
           ApiConstants.userId = value.user!.memberId.toString();
-          log("Api constants >>> " + ApiConstants.userId);
+          log("Api constants >>> ${ApiConstants.userId}");
 
           showLoader(false);
 

@@ -12,7 +12,6 @@ import '../../../Utils/Const/asset_const.dart';
 import '../../../Utils/Const/color_const.dart';
 import '../../../Utils/Extensions/text_extension.dart';
 import '../../../Widgets/custom_appbar.dart';
-import '../../../Widgets/custom_button.dart';
 import '../../../Widgets/custom_snackbar.dart';
 import '../../../Widgets/image_widget.dart';
 import '../../../Widgets/loader_widget.dart';
@@ -55,13 +54,6 @@ class StartWorkoutView extends StatelessWidget {
               ),
             ),
             floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-            floatingActionButton: controller.selectedMuscle.isEmpty ? null : CustomButton(
-              margin: EdgeInsets.symmetric(horizontal: horizontalPadding),
-              title: "Continue",
-              onTap: () {
-                Get.back();
-              },
-            ),
           ),
         );
       }

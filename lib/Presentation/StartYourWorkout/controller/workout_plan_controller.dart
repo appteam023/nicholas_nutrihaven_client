@@ -12,6 +12,7 @@ import '../../../Data/Model/WorkoutPlan/custom_workout_plan_model.dart';
 import '../../../Data/Model/muscleModel/get_muscle_model.dart';
 import '../../../Data/Repository/workout_repository.dart';
 import '../../../Data/Model/ExerciseGroup/saved_workout_model.dart';
+import '../../../Helpers/get_storare_helper.dart';
 import '../../../Utils/Const/color_const.dart';
 import '../../../Widgets/custom_TextField.dart';
 import '../../../Widgets/custom_button.dart';
@@ -25,21 +26,30 @@ class WorkoutPlanController extends GetxController {
   var isLoading = false.obs;
 
   List<String> filterDuration = [
-    "5 Min",
-    "10 Min",
     "15 Min",
-    "20 Min",
-    "25 Min",
     "30 Min",
-    "35 Min",
-    "40 Min",
     "45 Min",
-    "50 Min",
-    "60 Min"
+    "60 Min",
+    "75 Min",
+    "90 Min",
+    "105 Min",
+    "120 Min",
   ];
-  List<String> filterMuscleGroup = ["Fresh Muscle", "Trained Muscle"];
+  // List<String> filterMuscleGroup = ["Fresh Muscle", "Trained Muscle"];
   List<String> filterLevel = ["Beginner", "Intermediate", "Advanced"];
   List<Map<int,String>> filterMuscle = [
+    {1: "MUSCLES"},
+    {2: "CHEST"},
+    {3: "ARMS"},
+    {4: "SHOULDERS"},
+    {5: "LEGS"},
+    {6: "BACK"},
+    {7: "CORE"},
+    {8: "CARDIO"},
+    {9: "FRESH MUSCLES"},
+  ];
+
+  List<Map<int,String>> filterExerciseByMuscle = [
     {1: "ABS & CORE"},
     {2: "BACK"},
     {3: "BICEPS"},
@@ -52,6 +62,7 @@ class WorkoutPlanController extends GetxController {
     {10: "STRETCHES"},
     {11: "TRICEPS"},
   ];
+
   List<String> filterGoal = [
     "Bodybuilding",
     "Weight Maintenance",
@@ -67,14 +78,19 @@ class WorkoutPlanController extends GetxController {
   ];
 
   Rx<WorkoutFilter> selectedFilter = WorkoutFilter(
-    duration: "5 Min",
-    muscleGroup: "Fresh Muscle",
+    duration: "15 Min",
     level: "Beginner",
-    muscle: {1: "ABS & CORE"},
-    goal: "Bodybuilding",
+    muscle: {1: "MUSCLES"},
+    goal: null,
     muscleList: [],
   ).obs;
   WorkoutFilter? lastFilter;
+
+  RxString searchQuery = "".obs;
+  Worker? searchWorker;
+  TextEditingController searchTFCtrl = TextEditingController();
+  var searchFieldVisibility = false.obs;
+  Map<int, String> filterExerciseMuscle = {};
 
   final WorkOutRepository workOutRepository = WorkOutRepository();
 
@@ -96,20 +112,28 @@ class WorkoutPlanController extends GetxController {
 
   bool isSavedWorkOutSelected = false;
 
+  var globalReps = 0.obs;
+  var globalWeight = 0.obs;
+
 
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       lastFilter = selectedFilter.value;
+      await fetchMuscles(mainMuscle: selectedFilter.value.muscle.values.first);
       fetchExercises(filter: selectedFilter.value);
+      setGlobalRepsWeight();
     });
   }
 
   @override
   void onReady() {
     super.onReady();
+    searchWorker = debounce(searchQuery, (callBack) {
+      fetchAllExercises(forceReload: true, searchQuery: callBack);
+    }, time: 1000.milliseconds);
     debounce(selectedFilter, (WorkoutFilter newFilter) {
       if (lastFilter != newFilter) {
         lastFilter = newFilter;
@@ -123,6 +147,8 @@ class WorkoutPlanController extends GetxController {
   void onClose() {
     super.onClose();
     editGroupNameTFCtrl.dispose();
+    searchWorker?.dispose();
+    searchTFCtrl.dispose();
   }
 
   void updateFilter({
@@ -136,7 +162,6 @@ class WorkoutPlanController extends GetxController {
     final current = selectedFilter.value;
     selectedFilter.value = WorkoutFilter(
       duration: duration ?? current.duration,
-      muscleGroup: muscleGroup ?? current.muscleGroup,
       level: level ?? current.level,
       muscle: muscle ?? current.muscle,
       goal: goal ?? current.goal,
@@ -146,11 +171,10 @@ class WorkoutPlanController extends GetxController {
 
   void reset() {
     selectedFilter.value = WorkoutFilter(
-      duration: "5 Min",
-      muscleGroup: "Fresh Muscle",
+      duration: "15 Min",
       level: "Beginner",
-      muscle: {1: "ABS & CORE"},
-      goal: "Bodybuilding",
+      muscle: {1: "MUSCLES"},
+      goal: null,
       muscleList: [],
     );
     lastFilter = selectedFilter.value;
@@ -159,6 +183,14 @@ class WorkoutPlanController extends GetxController {
     exerciseData.value?.exercises = [];
     exerciseData.value = null;
     update();
+  }
+  void toggleVisibility () {
+    searchFieldVisibility.value = !searchFieldVisibility.value;
+  }
+
+  setGlobalRepsWeight () {
+    globalReps.value = getReps() ?? 10;
+    globalWeight.value = getWeights() ?? 10;
   }
 
 
@@ -192,7 +224,7 @@ class WorkoutPlanController extends GetxController {
     }
   }
 
-  Future<void> fetchMuscles({bool forceReload = false}) async {
+  Future<void> fetchMuscles({bool forceReload = false, String? mainMuscle}) async {
     if (forceReload) {
       selectedMuscle.value = [];
       musclesData.value = null;
@@ -204,7 +236,8 @@ class WorkoutPlanController extends GetxController {
       isLoading(true);
       var res = await workOutRepository.getMuscle(
         pageNo: musclesData.value?.currentPage != null
-          ? ((musclesData.value?.currentPage ?? 0) + 1) : 1
+          ? ((musclesData.value?.currentPage ?? 0) + 1) : 1,
+        mainMuscle: mainMuscle,
       );
       if (res != null && res.data?.muscles != null) {
         if(musclesData.value == null) {
@@ -214,6 +247,9 @@ class WorkoutPlanController extends GetxController {
           musclesData.value?.currentPage = res.data?.currentPage;
           musclesData.value?.lastPage = res.data?.lastPage;
           musclesData.value?.muscles?.addAll(res.data?.muscles ?? []);
+        }
+        if (mainMuscle != null) {
+          selectedMuscle.addAll(musclesData.value?.muscles ?? []);
         }
       }
     } catch (_) {
@@ -235,8 +271,8 @@ class WorkoutPlanController extends GetxController {
         queryParameter: {
           "duration_minutes": filter?.duration.split(" ").first,
           "difficulty": filter?.level,
-          "goal": filter?.goal,
-          "muscle_group_id": "${filter?.muscle.keys.first},${selectedMuscle.map((e) => e.id).join(",")}",
+          if (filter?.goal != null) "goal": filter?.goal,
+          "muscle_group_id": selectedMuscle.map((e) => e.id).join(","),
           "page": exerciseData.value?.currentPage != null
               ? ((exerciseData.value?.currentPage ?? 0) + 1) : 1, //23,
           "per_page": 20,
@@ -258,7 +294,7 @@ class WorkoutPlanController extends GetxController {
     }
   }
 
-  Future<void> fetchAllExercises({bool forceReload = false}) async {
+  Future<void> fetchAllExercises({bool forceReload = false, String? searchQuery,}) async {
     if (forceReload) {
       addNewExerciseData.value = null;
     }
@@ -272,6 +308,8 @@ class WorkoutPlanController extends GetxController {
           "page": addNewExerciseData.value?.currentPage != null
               ? ((addNewExerciseData.value?.currentPage ?? 0) + 1) : 1,
           "per_page": 20,
+          if (searchQuery != null) "search": searchQuery,
+          if (filterExerciseMuscle.isNotEmpty) "muscle_group_id": filterExerciseMuscle.keys.first
         }
       );
       if (res != null && res.data?.exercises != null) {
@@ -362,10 +400,9 @@ class WorkoutPlanController extends GetxController {
       if (workout != null) {
         selectedFilter.value = WorkoutFilter(
           duration: "${workout.exerciseData?.filters?.durationMinutes} Min",
-          muscleGroup: "Fresh Muscle",
           level: "${workout.exerciseData?.filters?.difficulty}",
-          muscle: workout.exerciseData?.filters?.muscleGroupFilter?.data ?? {1: "ABS & CORE"},
-          goal: "${workout.exerciseData?.filters?.goal}",
+          muscle: workout.exerciseData?.filters?.muscleGroupFilter?.data ?? {1: "MUSCLES"},
+          goal: workout.exerciseData?.filters?.goal != null ? "${workout.exerciseData?.filters?.goal}" : null,
           muscleList: workout.exerciseData?.filters?.muscleGroupList != null ?
               [...workout.exerciseData?.filters?.muscleGroupList! ?? []] : []
         );
@@ -406,8 +443,8 @@ class WorkoutPlanController extends GetxController {
           (key, value) => MapEntry(key.toString(), value),
         ),
         "muscle_group_list": [...selectedMuscle.map(
-          (e) => e.toJson().map((key, value) => MapEntry(key.toString(), value),))
-        ],
+          (e) => e.toJson().map((key, value) => MapEntry(key.toString(), value),)
+        )],
       };
 
       final List<Map<String, dynamic>> exercises = listOfExercises.map((e) => e.toJson().map(
@@ -557,6 +594,7 @@ class WorkoutPlanController extends GetxController {
   Future<bool> logEndWorkoutTime(
       BuildContext context, DateTime? workoutStartTime, DateTime? workoutEndTime, ) async {
     try {
+      isLoading(true);
       final Map<String, dynamic> filter = {
         "duration_minutes": workoutPlan.value?.exerciseData?.filters?.durationMinutes?.split(" ").first,
         "difficulty": workoutPlan.value?.exerciseData?.filters?.difficulty,
@@ -602,6 +640,7 @@ class WorkoutPlanController extends GetxController {
         print(stackTrace.toString());
       }
     } finally {
+      isLoading(false);
     }
     return false;
   }
@@ -654,15 +693,15 @@ class WorkoutPlanController extends GetxController {
 
 class WorkoutFilter {
   final String duration;
-  final String muscleGroup;
+  // final String muscleGroup;
   final String level;
   final Map<int, String> muscle;
-  final String goal;
+  final String? goal;
   final List<Muscle> muscleList;
 
   WorkoutFilter({
     required this.duration,
-    required this.muscleGroup,
+    // required this.muscleGroup,
     required this.level,
     required this.muscle,
     required this.goal,
@@ -676,7 +715,7 @@ class WorkoutFilter {
 
     return other is WorkoutFilter &&
         other.duration == duration &&
-        other.muscleGroup == muscleGroup &&
+        // other.muscleGroup == muscleGroup &&
         other.level == level &&
         mapEquals(other.muscle, muscle) &&
         other.goal == goal &&
@@ -686,7 +725,7 @@ class WorkoutFilter {
   @override
   int get hashCode =>
       duration.hashCode ^
-      muscleGroup.hashCode ^
+      // muscleGroup.hashCode ^
       level.hashCode ^
       muscle.hashCode ^
       goal.hashCode ^

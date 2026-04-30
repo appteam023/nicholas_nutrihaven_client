@@ -8,6 +8,7 @@ import '../../../Utils/Const/color_const.dart';
 import '../../../Utils/Extensions/text_extension.dart';
 import '../../../Widgets/custom_appbar.dart';
 import '../../../Widgets/custom_button.dart';
+import '../../../Widgets/custom_dropdown_widget.dart';
 import '../../../Widgets/image_widget.dart';
 import '../../../Widgets/loader_widget.dart';
 import '../controller/workout_plan_controller.dart';
@@ -39,16 +40,44 @@ class SelectExerciseView extends StatelessWidget {
               backgroundColor: secondary,
               appBar: CustomAppBar(
                 title: "Select Exercises",
-                actionWidget: Visibility(
-                  visible: controller.addNewExerciseData.value != null && controller.addNewExerciseData.value?.total != null,
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 12.0),
-                    child: Text(
-                      "${controller.selectedExercises.length}/${controller.addNewExerciseData.value?.total}",
-                      style: context.titleLarge,
+                actionWidget: Row(
+                  children: [
+                    Visibility(
+                      visible: controller.addNewExerciseData.value != null && controller.addNewExerciseData.value?.total != null,
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 12.0),
+                        child: Text(
+                          "${controller.selectedExercises.length}/${controller.addNewExerciseData.value?.total}",
+                          style: context.titleLarge,
+                        ),
+                      ),
                     ),
-                  ),
+                    IconButton(
+                      style: ButtonStyle(
+                        padding: WidgetStateProperty.all<EdgeInsetsGeometry>(EdgeInsets.all(12)),
+                        visualDensity: VisualDensity.comfortable,
+                        backgroundColor: WidgetStateProperty.all(secondary.withValues(alpha: 0.1)),
+                        foregroundColor: WidgetStateProperty.all(secondary),
+                        overlayColor: WidgetStateProperty.all(Colors.white12),
+                        shape: WidgetStateProperty.all(CircleBorder())
+                      ),
+                      icon: Icon(Icons.search, color: Colors.white),
+                      onPressed: controller.toggleVisibility,
+                    ),
+                  ],
                 ),
+                searchField: controller.searchFieldVisibility.value,
+                searchTFCtrl: controller.searchTFCtrl,
+                onChanged: (val) {
+                  if (val.length >= 2) {
+                    if (controller.searchQuery.value == val.trim()) {
+                      return;
+                    }
+                    controller.searchQuery(val);
+                  } else if (val.isEmpty) {
+                    controller.searchQuery(val);
+                  }
+                },
               ),
               body: SafeArea(
                 child: Padding(
@@ -62,7 +91,7 @@ class SelectExerciseView extends StatelessWidget {
                               debugPrint("At the top");
                             } else {
                               debugPrint("At the bottom");
-                              controller.fetchAllExercises();
+                              controller.fetchAllExercises(searchQuery: controller.searchTFCtrl.text);
                             }
                           }
                         }
@@ -92,9 +121,32 @@ class SelectExerciseView extends StatelessWidget {
                                       ),
                                       Padding(
                                         padding: const EdgeInsets.only(bottom: 14.0),
-                                        child: Text(
-                                          "Exercises",
-                                          style: context.headlineSmall!.copyWith(color: primary),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              "Exercises",
+                                              style: context.headlineSmall!.copyWith(color: primary),
+                                            ),
+                                            GetBuilder<WorkoutPlanController>(
+                                              builder: (controller) {
+                                              return CustomDropdownWidget<Map<int, String>>(
+                                                dropdownItems: controller.filterExerciseByMuscle,
+                                                onChanged: (val) {
+                                                  if (val != null && val.isNotEmpty && controller.filterExerciseMuscle.isNotEmpty &&
+                                                      val.keys.first != controller.filterExerciseMuscle.keys.first) {
+                                                    controller.filterExerciseMuscle = val;
+                                                  } else if (val != null && val.isNotEmpty && controller.filterExerciseMuscle.isEmpty) {
+                                                    controller.filterExerciseMuscle = val;
+                                                  }
+                                                  controller.update();
+                                                  controller.fetchAllExercises(forceReload: true, searchQuery: controller.searchTFCtrl.text);
+                                                },
+                                                hint: "Select",
+                                                selectedValue: Map<int, String>.from(controller.filterExerciseMuscle),
+                                              );
+                                            }),
+                                          ],
                                         ),
                                       ),
                                     ],

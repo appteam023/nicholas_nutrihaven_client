@@ -31,6 +31,7 @@ import '../../Presentation/FoodLibrary/diet_cuisine_selection_view.dart';
 import '../../Presentation/FoodLibrary/nutrient_list_view.dart';
 import '../../Presentation/FoodLibrary/recipe_detailed_view.dart';
 import '../../Presentation/StartYourWorkout/AddRepSets/add_rep_sets_screen.dart';
+import '../../Presentation/StartYourWorkout/AddRepSets/rep_set_setting.dart';
 import '../../Presentation/StartYourWorkout/InstructionAndVideo/instruction_video_Screen.dart';
 import '../../Presentation/StartYourWorkout/group_create_edit/select_exercise_view.dart';
 import '../../Presentation/StartYourWorkout/group_create_edit/select_muscle_view.dart';

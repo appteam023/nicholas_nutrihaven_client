@@ -34,6 +34,7 @@ class AppRoutes {
   static String dietNutrientsDetail = '/dietNutrientsDetail';
   static String addNewMuscle = '/addNewMuscle';
   static String addRepSet = '/addRepSet';
+  static String repWeightsSetting = '/repWeightsSettingView';
   static String instructionVideo = '/instructionVideo';
   static String notification = '/notification';
   static String addNewExercise = '/addNewExercise';
@@ -156,6 +157,10 @@ class AppRoutes {
     GetPage(
       name: addRepSet,
       page: () => const AddRepSetsScreen(),
+    ),
+    GetPage(
+      name: repWeightsSetting,
+      page: () => const RepWeightsSettingView(),
     ),
     GetPage(
       name: instructionVideo,
