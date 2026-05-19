@@ -82,12 +82,19 @@ class StartWorkoutView extends StatelessWidget {
                     ),
                     TextButton(
                       onPressed: () async {
-                        controller.selectedExercises.clear();
+                        // controller.selectedExercises.clear();
                         await Get.toNamed(AppRoutes.selectExercise, arguments: {
                           "isEditing": true,
                         });
                         if (controller.selectedExercises.isEmpty) return;
-                        controller.workoutPlan.value?.exerciseData?.exercises?.addAll(controller.selectedExercises);
+                        // controller.workoutPlan.value?.exerciseData?.exercises?.addAll(controller.selectedExercises);
+                        for (var ex in controller.selectedExercises) {
+                          bool exists = controller.exerciseData.value!.exercises?.any((e) => e.id == ex.id) ?? false;
+
+                          if (!exists) {
+                            controller.exerciseData.value!.exercises?.add(ex);
+                          }
+                        }
                         controller.update(["exercise-list"]);
                       },
                       child: const Text('Add New Exercises'),

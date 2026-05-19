@@ -9,22 +9,19 @@ import 'package:nicholas_nutrihaven/Presentation/BottomBar/bottom_nav_controller
 import 'package:nicholas_nutrihaven/Utils/Const/asset_const.dart';
 import 'package:nicholas_nutrihaven/Utils/Const/color_const.dart';
 import 'package:nicholas_nutrihaven/Utils/Extensions/text_extension.dart';
-import 'package:nicholas_nutrihaven/Widgets/custom_appbar.dart';
-import 'package:nicholas_nutrihaven/Widgets/custom_button.dart';
-import 'package:nicholas_nutrihaven/main.dart';
 
 import '../../../Config/session_manager.dart';
-import '../../../Helpers/get_storare_helper.dart';
+import '../../../Helpers/get_storage_helper.dart';
 
 class DrawerScreen extends StatelessWidget {
   const DrawerScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final _bottomNavContoller = Get.put(BottomNavController());
+    final bottomNavController = Get.put(BottomNavController());
 
     return AdvancedDrawer(
-      controller: _bottomNavContoller.advancedDrawerController,
+      controller: bottomNavController.advancedDrawerController,
       animationCurve: Curves.easeInOut,
       animationDuration: const Duration(milliseconds: 300),
       animateChildDecoration: true,
@@ -35,7 +32,7 @@ class DrawerScreen extends StatelessWidget {
         boxShadow: <BoxShadow>[
           BoxShadow(color: Colors.black12, blurRadius: 10, spreadRadius: 10),
         ],
-        borderRadius: const BorderRadius.all(Radius.circular(16)),
+        borderRadius: BorderRadius.all(Radius.circular(16)),
       ),
       drawer: SafeArea(
         child: Container(
@@ -77,7 +74,7 @@ class DrawerScreen extends StatelessWidget {
               ListTile(
                 visualDensity: VisualDensity(vertical: -4),
                 onTap: () {
-                  _bottomNavContoller.advancedDrawerController.toggleDrawer();
+                  bottomNavController.advancedDrawerController.toggleDrawer();
                 },
                 leading: const Icon(Icons.home_outlined),
                 title: const Text('Home'),
@@ -173,17 +170,17 @@ class DrawerScreen extends StatelessWidget {
         ),
       ),
       child: HomeScreen(
-        onTap: () => _handleMenuButtonPressed(_bottomNavContoller),
+        onTap: () => _handleMenuButtonPressed(bottomNavController),
       ),
     );
   }
 
-  void _handleMenuButtonPressed(_bottomNavContoller) {
+  void _handleMenuButtonPressed(bottomNavController) {
     // NOTICE: Manage Advanced Drawer state through the Controller.
-    _bottomNavContoller.advancedDrawerController.value = AdvancedDrawerValue.visible();
+    bottomNavController.advancedDrawerController.value = AdvancedDrawerValue.visible();
     // _advancedDrawerController.showDrawer();
-    _bottomNavContoller.isAppBarHide = true;
-    _bottomNavContoller.update();
+    bottomNavController.isAppBarHide = true;
+    bottomNavController.update();
   }
 }
 
@@ -195,7 +192,7 @@ class DrawerDivider extends StatelessWidget {
     return Divider(
       indent: horizontalPadding,
       endIndent: 120.w,
-      color: grey.withOpacity(0.3),
+      color: grey.withValues(alpha: 0.3),
     );
   }
 }

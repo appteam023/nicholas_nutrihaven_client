@@ -21,7 +21,7 @@ class SelectMuscleView extends StatelessWidget {
       init: Get.find<WorkoutPlanController>(),
       initState: (state) {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
-          state.controller?.fetchMuscles();
+          state.controller?.fetchMuscles(forceReload: true);
         });
       },
       builder: (controller) {
@@ -34,7 +34,7 @@ class SelectMuscleView extends StatelessWidget {
             ),
             body: SafeArea(
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                padding: EdgeInsets.fromLTRB(horizontalPadding, 0, horizontalPadding, 50),
                 child: NotificationListener<ScrollUpdateNotification>(
                   onNotification: (ScrollNotification scrollInfo) {
                     if (scrollInfo is ScrollUpdateNotification) {

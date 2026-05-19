@@ -12,7 +12,7 @@ import '../../../Data/Model/WorkoutPlan/custom_workout_plan_model.dart';
 import '../../../Data/Model/muscleModel/get_muscle_model.dart';
 import '../../../Data/Repository/workout_repository.dart';
 import '../../../Data/Model/ExerciseGroup/saved_workout_model.dart';
-import '../../../Helpers/get_storare_helper.dart';
+import '../../../Helpers/get_storage_helper.dart';
 import '../../../Utils/Const/color_const.dart';
 import '../../../Widgets/custom_TextField.dart';
 import '../../../Widgets/custom_button.dart';
@@ -122,7 +122,8 @@ class WorkoutPlanController extends GetxController {
     super.onInit();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       lastFilter = selectedFilter.value;
-      await fetchMuscles(mainMuscle: selectedFilter.value.muscle.values.first);
+      await fetchMuscles();
+      updateFilter(muscleList: [...selectedMuscle]);
       fetchExercises(filter: selectedFilter.value);
       setGlobalRepsWeight();
     });
@@ -138,6 +139,7 @@ class WorkoutPlanController extends GetxController {
       if (lastFilter != newFilter) {
         lastFilter = newFilter;
         isSavedWorkOutSelected = false;
+        selectedExercises.clear();
         fetchExercises(filter: newFilter, onFilterChange: true);
       }
     }, time: Duration(milliseconds: 600));
@@ -226,7 +228,7 @@ class WorkoutPlanController extends GetxController {
 
   Future<void> fetchMuscles({bool forceReload = false, String? mainMuscle}) async {
     if (forceReload) {
-      selectedMuscle.value = [];
+      // selectedMuscle.value = [];
       musclesData.value = null;
     }
     try {
@@ -248,7 +250,7 @@ class WorkoutPlanController extends GetxController {
           musclesData.value?.lastPage = res.data?.lastPage;
           musclesData.value?.muscles?.addAll(res.data?.muscles ?? []);
         }
-        if (mainMuscle != null) {
+        if (selectedMuscle.isEmpty) {
           selectedMuscle.addAll(musclesData.value?.muscles ?? []);
         }
       }

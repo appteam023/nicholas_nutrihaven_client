@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../Config/AppRoutes/routes_imports.dart';
 import '../../Config/session_manager.dart';
-import '../../Helpers/get_storare_helper.dart';
+import '../../Helpers/get_storage_helper.dart';
 
 class SplashController extends GetxController {
   RxBool isScale = false.obs;

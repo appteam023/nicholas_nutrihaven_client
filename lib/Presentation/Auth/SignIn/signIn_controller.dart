@@ -11,7 +11,7 @@ import '../../../Config/AppRoutes/routes_imports.dart';
 import '../../../Config/session_manager.dart';
 import '../../../Data/DataSources/remote/api_constant.dart';
 import '../../../Data/Repository/auth_repository.dart';
-import '../../../Helpers/get_storare_helper.dart';
+import '../../../Helpers/get_storage_helper.dart';
 import '../../../Utils/Const/color_const.dart';
 import '../../../Widgets/custom_button.dart';
 import '../../../Widgets/loader_widget.dart';

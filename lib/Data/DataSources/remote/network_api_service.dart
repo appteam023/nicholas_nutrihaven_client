@@ -7,7 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:get/get.dart' hide FormData;
 import 'package:nicholas_nutrihaven/Widgets/loader_widget.dart';
 import 'dart:io';
-import '../../../Helpers/get_storare_helper.dart';
+import '../../../Helpers/get_storage_helper.dart';
 import '../../../Widgets/custom_snackbar.dart';
 import 'api_constant.dart';
 import 'api_error_handling.dart';

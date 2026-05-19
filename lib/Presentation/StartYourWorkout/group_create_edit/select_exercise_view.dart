@@ -47,7 +47,7 @@ class SelectExerciseView extends StatelessWidget {
                       child: Padding(
                         padding: const EdgeInsets.only(right: 12.0),
                         child: Text(
-                          "${controller.selectedExercises.length}/${controller.addNewExerciseData.value?.total}",
+                          "${controller.selectedExercises.length}",
                           style: context.titleLarge,
                         ),
                       ),

@@ -47,13 +47,13 @@ class _WorkoutPlanState extends State<WorkoutPlan> {
                 child: NotificationListener<ScrollUpdateNotification>(
                   onNotification: (ScrollNotification scrollInfo) {
                     if (scrollInfo is ScrollUpdateNotification) {
-                      if (scrollInfo.metrics.axis == Axis.vertical) { //
+                      if (scrollInfo.metrics.axis == Axis.vertical) {
                         if (scrollInfo.metrics.atEdge) {
                           if (scrollInfo.metrics.pixels == 0) {
                             debugPrint("At the top");
                           } else {
                             debugPrint("At the bottom");
-                            controller.fetchExercises(filter: controller.selectedFilter.value);
+                            // controller.fetchExercises(filter: controller.selectedFilter.value);
                           }
                         }
                       }
@@ -203,10 +203,14 @@ class _WorkoutPlanState extends State<WorkoutPlan> {
                 if (val != null && val.isNotEmpty && controller.selectedFilter.value.muscle.isNotEmpty &&
                     val.keys.first != controller.selectedFilter.value.muscle.keys.first) {
                   await controller.fetchMuscles(forceReload: true, mainMuscle: val.values.first);
-                  controller.updateFilter(muscle: val);
+                  controller.selectedMuscle.clear();
+                  controller.selectedMuscle.addAll(controller.musclesData.value?.muscles ?? []);
+                  controller.updateFilter(muscle: val, muscleList: controller.selectedMuscle);
                 } else if (val != null && val.isEmpty && controller.selectedFilter.value.muscle.isEmpty) {
                   await controller.fetchMuscles(forceReload: true, mainMuscle: val.values.first);
-                  controller.updateFilter(muscle: val);
+                  controller.selectedMuscle.clear();
+                  controller.selectedMuscle.addAll(controller.musclesData.value?.muscles ?? []);
+                  controller.updateFilter(muscle: val, muscleList: controller.selectedMuscle);
                 }
               },
               selectedValue: Map<int, String>.from(controller.selectedFilter.value.muscle),
@@ -319,12 +323,24 @@ class _WorkoutPlanState extends State<WorkoutPlan> {
                     ),
                     TextButton(
                       onPressed: () async {
-                        controller.selectedExercises.clear();
+                        // controller.selectedExercises.clear();
                         await Get.toNamed(AppRoutes.selectExercise, arguments: {
                           "isEditing": true,
                         });
                         if (controller.selectedExercises.isEmpty) return;
-                        controller.exerciseData.value!.exercises?.addAll(controller.selectedExercises);
+                        // controller.exerciseData.value!.exercises?.addAllIf(
+                        //     controller.selectedExercises.where(
+                        //     (ex) => !controller.exerciseData.value!.exercises!.any((e) => e.id == ex.id),
+                        //   ),
+                        //   controller.selectedExercises
+                        // );
+                        for (var ex in controller.selectedExercises) {
+                          bool exists = controller.exerciseData.value!.exercises?.any((e) => e.id == ex.id) ?? false;
+
+                          if (!exists) {
+                            controller.exerciseData.value!.exercises?.add(ex);
+                          }
+                        }
                         controller.update(["exercise-list"]);
                       },
                       child: const Text('Add New Exercises'),
@@ -372,13 +388,20 @@ class _WorkoutPlanState extends State<WorkoutPlan> {
         children: [
           SlidableAction(
             onPressed: (context) async {
-              controller.selectedExercises.clear();
+              // controller.selectedExercises.clear();
               await Get.toNamed(AppRoutes.selectExercise, arguments: {
                 "isEditing": true,
               });
               if (controller.selectedExercises.isEmpty) return;
               controller.exerciseData.value!.exercises?.removeAt(index);
-              controller.exerciseData.value!.exercises?.insertAll(index, controller.selectedExercises);
+              // controller.exerciseData.value!.exercises?.insertAll(index, controller.selectedExercises);
+              for (var ex in controller.selectedExercises) {
+                bool exists = controller.exerciseData.value!.exercises?.any((e) => e.id == ex.id) ?? false;
+
+                if (!exists) {
+                  controller.exerciseData.value!.exercises?.insert(index, ex);
+                }
+              }
               controller.update(["exercise-list"]);
             },
             icon: CupertinoIcons.repeat,
